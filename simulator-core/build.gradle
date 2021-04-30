@@ -87,6 +87,7 @@ jar {
                 'Main-Class': 'com.evbox.everon.ocpp.simulator.SimulatorLauncher'
         )
     }
+    processResources.exclude('*')
 }
 
 task sourcesJar(type: Jar) {
@@ -98,7 +99,7 @@ task javadocJar(type: Jar) {
     from javadoc
     archiveClassifier = 'javadoc'
 }
-version '0.4.4'
+version '1.0.0-SNAPSHOT'
 
 publishing {
     publications {
