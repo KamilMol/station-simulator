@@ -7,10 +7,12 @@ import com.evbox.everon.ocpp.simulator.station.component.ocppcommctrlr.Heartbeat
 import com.evbox.everon.ocpp.simulator.station.component.ocppcommctrlr.OCPPCommCtrlrComponent;
 import com.evbox.everon.ocpp.simulator.station.component.variable.SetVariableValidationResult;
 import com.evbox.everon.ocpp.simulator.websocket.AbstractWebSocketClientInboxMessage;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableDatum;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableResult;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariablesRequest;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariablesResponse;
+import com.evbox.everon.ocpp.v20.message.AttributeEnum;
+import com.evbox.everon.ocpp.v20.message.SetVariableData;
+import com.evbox.everon.ocpp.v20.message.SetVariableResult;
+import com.evbox.everon.ocpp.v20.message.SetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.SetVariablesRequest;
+import com.evbox.everon.ocpp.v20.message.SetVariablesResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,7 +53,7 @@ class SetVariablesRequestHandlerTest {
     @Test
     void shouldHandleVariable() throws JsonProcessingException {
         //given
-        initOCPPCommCtrlComponentMock(SetVariableResult.AttributeStatus.ACCEPTED);
+        initOCPPCommCtrlComponentMock(SetVariableStatusEnum.ACCEPTED);
 
         SetVariablesRequest setVariablesRequest = createSetVariablesRequest()
                 .withComponent(OCPPCommCtrlrComponent.NAME)
@@ -68,7 +70,7 @@ class SetVariablesRequestHandlerTest {
         SetVariablesResponse setVariablesResponse = createSetVariablesResponse()
                 .withComponent(OCPPCommCtrlrComponent.NAME)
                 .withVariable(HeartbeatIntervalVariableAccessor.NAME)
-                .withAttributeStatus(SetVariableResult.AttributeStatus.ACCEPTED)
+                .withAttributeStatus(SetVariableStatusEnum.ACCEPTED)
                 .build();
 
         String expectedCallResultJson = createCallResult()
@@ -98,7 +100,7 @@ class SetVariablesRequestHandlerTest {
         SetVariablesResponse setVariablesResponse = createSetVariablesResponse()
                 .withComponent(UNKNOWN_COMPONENT_NAME)
                 .withVariable(HeartbeatIntervalVariableAccessor.NAME)
-                .withAttributeStatus(SetVariableResult.AttributeStatus.UNKNOWN_COMPONENT)
+                .withAttributeStatus(SetVariableStatusEnum.UNKNOWN_COMPONENT)
                 .build();
 
         String expectedCallResultJson = createCallResult()
@@ -112,7 +114,7 @@ class SetVariablesRequestHandlerTest {
     @Test
     void shouldFailIfValidationFailed() throws Exception {
         //given
-        initOCPPCommCtrlComponentMock(SetVariableResult.AttributeStatus.REJECTED);
+        initOCPPCommCtrlComponentMock(SetVariableStatusEnum.REJECTED);
 
         SetVariablesRequest setVariablesRequest = createSetVariablesRequest()
                 .withComponent(OCPPCommCtrlrComponent.NAME)
@@ -128,7 +130,7 @@ class SetVariablesRequestHandlerTest {
         SetVariablesResponse setVariablesResponse = createSetVariablesResponse()
                 .withComponent(OCPPCommCtrlrComponent.NAME)
                 .withVariable(HeartbeatIntervalVariableAccessor.NAME)
-                .withAttributeStatus(SetVariableResult.AttributeStatus.REJECTED)
+                .withAttributeStatus(SetVariableStatusEnum.REJECTED)
                 .build();
 
         String expectedCallResultJson = createCallResult()
@@ -139,15 +141,15 @@ class SetVariablesRequestHandlerTest {
         assertThat(messageCaptor.getValue().getData().get()).isEqualTo(expectedCallResultJson);
     }
 
-    private void initOCPPCommCtrlComponentMock(SetVariableResult.AttributeStatus attributeStatus) {
+    private void initOCPPCommCtrlComponentMock(SetVariableStatusEnum attributeStatus) {
         given(componentsHolder.getComponent(new CiString.CiString50(OCPPCommCtrlrComponent.NAME))).willReturn(Optional.of(ocppCommCtrlrComponentMock));
         given(ocppCommCtrlrComponentMock.validate(any()))
                 .willAnswer(invocation -> {
-                    SetVariableDatum data = invocation.getArgument(0);
+                    SetVariableData data = invocation.getArgument(0);
                     SetVariableResult setVariableResult = new SetVariableResult()
                             .withComponent(data.getComponent())
                             .withVariable(data.getVariable())
-                            .withAttributeType(SetVariableResult.AttributeType.fromValue(data.getAttributeType().value()))
+                            .withAttributeType(AttributeEnum.fromValue(data.getAttributeType().value()))
                             .withAttributeStatus(attributeStatus);
                     return new SetVariableValidationResult(data, setVariableResult);
                 });

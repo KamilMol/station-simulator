@@ -3,8 +3,10 @@ package com.evbox.everon.ocpp.simulator.station.handlers.ocpp;
 import com.evbox.everon.ocpp.simulator.station.StationHardwareData;
 import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
 import com.evbox.everon.ocpp.simulator.station.StationStore;
-import com.evbox.everon.ocpp.v20.message.station.CertificateSignedRequest;
-import com.evbox.everon.ocpp.v20.message.station.CertificateSignedResponse;
+import com.evbox.everon.ocpp.v20.message.CertificateSignedRequest;
+import com.evbox.everon.ocpp.v20.message.CertificateSignedResponse;
+import com.evbox.everon.ocpp.v20.message.CertificateSignedStatusEnum;
+import com.evbox.everon.ocpp.v20.message.CertificateSigningUseEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Hex;
@@ -20,6 +22,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Handler for {@link CertificateSignedRequest} request.
@@ -41,33 +45,37 @@ public class CertificateSignedRequestHandler implements OcppRequestHandler<Certi
 
     @Override
     public void handle(String callId, CertificateSignedRequest request) {
-        if (request.getTypeOfCertificate() == CertificateSignedRequest.TypeOfCertificate.V_2_G_CERTIFICATE) {
-            stationMessageSender.sendCallResult(callId, new CertificateSignedResponse().withStatus(CertificateSignedResponse.Status.REJECTED));
+        if (request.getCertificateType() == CertificateSigningUseEnum.V_2_G_CERTIFICATE) {
+            stationMessageSender.sendCallResult(callId, new CertificateSignedResponse().withStatus(CertificateSignedStatusEnum.REJECTED));
             return;
         }
 
-        List<String> chain = new ArrayList<>();
-        request.getCert().forEach(c -> chain.add(c.toString()));
+        String certificationChain = request.getCertificateChain().toString();
 
-        if (chain.isEmpty()) {
-            stationMessageSender.sendCallResult(callId, new CertificateSignedResponse().withStatus(CertificateSignedResponse.Status.REJECTED));
+//        List<String> chain = new ArrayList<>();
+//        request.getCert().forEach(c -> chain.add(c.toString()));
+
+        if (isEmpty(certificationChain)) {
+            stationMessageSender.sendCallResult(callId, new CertificateSignedResponse().withStatus(CertificateSignedStatusEnum.REJECTED));
             return;
         }
 
 
-        X509Certificate stationCertificate = convertStringToCertificate(chain.get(0));
+        X509Certificate stationCertificate = convertStringToCertificate(certificationChain);
         if (stationCertificate != null && isCertificateValid(stationCertificate)) {
-            stationMessageSender.sendCallResult(callId, new CertificateSignedResponse().withStatus(CertificateSignedResponse.Status.ACCEPTED));
+            stationMessageSender.sendCallResult(callId, new CertificateSignedResponse().withStatus(CertificateSignedStatusEnum.ACCEPTED));
             stationStore.setStationCertificate(stationCertificate);
             startCertificateRenewerTask(stationCertificate);
 
-            if (chain.size() > 1) {
-                List<X509Certificate> stationCertificateChain = new ArrayList<>();
-                chain.subList(1, chain.size()).forEach(c -> stationCertificateChain.add(convertStringToCertificate(c)));
-                stationStore.setStationCertificateChain(stationCertificateChain);
-            }
+
+//            if (chain.size() > 1) {
+//                List<X509Certificate> stationCertificateChain = new ArrayList<>();
+//                chain.subList(1, chain.size()).forEach(c -> stationCertificateChain.add(convertStringToCertificate(c)));
+//                stationStore.setStationCertificateChain(stationCertificateChain);
+//            }
+            stationStore.setStationCertificateChain(List.of(stationCertificate));
         } else {
-            stationMessageSender.sendCallResult(callId, new CertificateSignedResponse().withStatus(CertificateSignedResponse.Status.REJECTED));
+            stationMessageSender.sendCallResult(callId, new CertificateSignedResponse().withStatus(CertificateSignedStatusEnum.REJECTED));
         }
     }
 

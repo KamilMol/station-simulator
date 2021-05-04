@@ -3,10 +3,11 @@ package com.evbox.everon.ocpp.simulator.station.handlers.ocpp;
 import com.evbox.everon.ocpp.common.CiString;
 import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
 import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.support.CustomerDataUtils;
-import com.evbox.everon.ocpp.v20.message.common.IdToken;
-import com.evbox.everon.ocpp.v20.message.station.CustomerInformationRequest;
-import com.evbox.everon.ocpp.v20.message.station.CustomerInformationResponse;
-import com.evbox.everon.ocpp.v20.message.station.NotifyCustomerInformationRequest;
+import com.evbox.everon.ocpp.v20.message.CustomerInformationRequest;
+import com.evbox.everon.ocpp.v20.message.CustomerInformationResponse;
+import com.evbox.everon.ocpp.v20.message.CustomerInformationStatusEnum;
+import com.evbox.everon.ocpp.v20.message.IdToken;
+import com.evbox.everon.ocpp.v20.message.NotifyCustomerInformationRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,11 +17,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.atMostOnce;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerInformationRequestHandlerTest {
@@ -60,10 +62,10 @@ class CustomerInformationRequestHandlerTest {
         var customerInformationResponse = customerInformationResponseArgumentCaptor.getValue();
         var notifyCustomerInformationRequest = notifyCustomerInformationResponseArgumentCaptor.getValue();
 
-        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationResponse.Status.REJECTED);
+        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationStatusEnum.REJECTED);
 
         assertThat(notifyCustomerInformationRequest.getData()).isEqualTo(NO_CUSTOMER_DATA_FOUND);
-        assertThat(notifyCustomerInformationRequest.getAdditionalProperties()).isEmpty();
+//        assertThat(notifyCustomerInformationRequest.getAdditionalProperties()).isEmpty();
         assertThat(notifyCustomerInformationRequest.getRequestId()).isEqualTo(123);
         assertThat(notifyCustomerInformationRequest.getSeqNo()).isEqualTo(0);
         assertThat(notifyCustomerInformationRequest.getTbc()).isFalse();
@@ -85,10 +87,10 @@ class CustomerInformationRequestHandlerTest {
         var customerInformationResponse = customerInformationResponseArgumentCaptor.getValue();
         var notifyCustomerInformationRequest = notifyCustomerInformationResponseArgumentCaptor.getValue();
 
-        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationResponse.Status.ACCEPTED);
+        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationStatusEnum.ACCEPTED);
 
         assertThat(notifyCustomerInformationRequest.getData()).isEqualTo(CustomerDataUtils.getCustomerInformation(customerIdentification.toString(), "", "").get(0));
-        assertThat(notifyCustomerInformationRequest.getAdditionalProperties()).isEmpty();
+//        assertThat(notifyCustomerInformationRequest.getAdditionalProperties()).isEmpty();
         assertThat(notifyCustomerInformationRequest.getRequestId()).isEqualTo(123);
         assertThat(notifyCustomerInformationRequest.getSeqNo()).isZero();
         assertThat(notifyCustomerInformationRequest.getTbc()).isFalse();
@@ -107,7 +109,7 @@ class CustomerInformationRequestHandlerTest {
 
         var customerInformationResponse = customerInformationResponseArgumentCaptor.getValue();
 
-        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationResponse.Status.REJECTED);
+        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationStatusEnum.REJECTED);
     }
 
     @Test
@@ -125,7 +127,7 @@ class CustomerInformationRequestHandlerTest {
         var customerInformationResponse = customerInformationResponseArgumentCaptor.getValue();
         var notifyCustomerInformationRequest = notifyCustomerInformationResponseArgumentCaptor.getValue();
 
-        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationResponse.Status.ACCEPTED);
+        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationStatusEnum.ACCEPTED);
 
         var data = CustomerDataUtils.getCustomerInformation("", "idToken1", "");
 
@@ -133,7 +135,7 @@ class CustomerInformationRequestHandlerTest {
         data.remove(lastElement);
 
         assertThat(notifyCustomerInformationRequest.getData()).isEqualTo(lastElement);
-        assertThat(notifyCustomerInformationRequest.getAdditionalProperties()).isEmpty();
+//        assertThat(notifyCustomerInformationRequest.getAdditionalProperties()).isEmpty();
         assertThat(notifyCustomerInformationRequest.getTbc()).isFalse();
         assertThat(notifyCustomerInformationRequest.getSeqNo()).isEqualTo(data.size());
         assertThat(notifyCustomerInformationRequest.getRequestId()).isEqualTo(123);
@@ -155,7 +157,7 @@ class CustomerInformationRequestHandlerTest {
         var customerInformationResponse = customerInformationResponseArgumentCaptor.getValue();
         var notifyCustomerInformationRequest = notifyCustomerInformationResponseArgumentCaptor.getValue();
 
-        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationResponse.Status.ACCEPTED);
+        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationStatusEnum.ACCEPTED);
 
         assertDataCleared(customerIdentification, notifyCustomerInformationRequest);
     }
@@ -176,20 +178,20 @@ class CustomerInformationRequestHandlerTest {
         var customerInformationResponse = customerInformationResponseArgumentCaptor.getValue();
         var notifyCustomerInformationRequest = notifyCustomerInformationResponseArgumentCaptor.getValue();
 
-        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationResponse.Status.ACCEPTED);
+        assertCustomerInformationResponse(customerInformationResponse, CustomerInformationStatusEnum.ACCEPTED);
 
         assertDataCleared(customerIdentification, notifyCustomerInformationRequest);
     }
 
-    private void assertCustomerInformationResponse(CustomerInformationResponse customerInformationResponse, CustomerInformationResponse.Status status) {
+    private void assertCustomerInformationResponse(CustomerInformationResponse customerInformationResponse, CustomerInformationStatusEnum status) {
         assertThat(customerInformationResponse.getStatus()).isEqualTo(status);
-        assertThat(customerInformationResponse.getAdditionalProperties()).isEmpty();
+//        assertThat(customerInformationResponse.getAdditionalProperties()).isEmpty();
     }
 
     private void assertDataCleared(CiString.CiString64 customerIdentification, NotifyCustomerInformationRequest notifyCustomerInformationRequest) {
         assertThat(CustomerDataUtils.getCustomerInformation(customerIdentification.toString(), "", "").size()).isZero();
         assertThat(notifyCustomerInformationRequest.getData()).isEqualTo(CUSTOMER_DATA_CLEARED);
-        assertThat(notifyCustomerInformationRequest.getAdditionalProperties()).isEmpty();
+//        assertThat(notifyCustomerInformationRequest.getAdditionalProperties()).isEmpty();
         assertThat(notifyCustomerInformationRequest.getRequestId()).isEqualTo(123);
         assertThat(notifyCustomerInformationRequest.getSeqNo()).isZero();
         assertThat(notifyCustomerInformationRequest.getTbc()).isFalse();

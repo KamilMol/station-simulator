@@ -10,9 +10,10 @@ import com.evbox.everon.ocpp.simulator.station.evse.states.AvailableState;
 import com.evbox.everon.ocpp.simulator.station.evse.states.ChargingState;
 import com.evbox.everon.ocpp.simulator.station.evse.states.WaitingForAuthorizationState;
 import com.evbox.everon.ocpp.simulator.station.subscription.Subscriber;
-import com.evbox.everon.ocpp.v20.message.station.AuthorizeRequest;
-import com.evbox.everon.ocpp.v20.message.station.AuthorizeResponse;
-import com.evbox.everon.ocpp.v20.message.station.IdTokenInfo;
+import com.evbox.everon.ocpp.v20.message.AuthorizationStatusEnum;
+import com.evbox.everon.ocpp.v20.message.AuthorizeRequest;
+import com.evbox.everon.ocpp.v20.message.AuthorizeResponse;
+import com.evbox.everon.ocpp.v20.message.IdTokenInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,8 +26,13 @@ import java.util.Collections;
 
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_EVSE_ID;
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_TOKEN_ID;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthorizeTest {
@@ -43,8 +49,8 @@ public class AuthorizeTest {
     Authorize authorize;
 
     private final AuthorizeResponse authorizeResponse = new AuthorizeResponse()
-                                                            .withIdTokenInfo(new IdTokenInfo().withStatus(IdTokenInfo.Status.ACCEPTED))
-                                                            .withEvseId(Collections.singletonList(DEFAULT_EVSE_ID));
+            .withIdTokenInfo(new IdTokenInfo().withStatus(AuthorizationStatusEnum.ACCEPTED)
+                    .withEvseId(Collections.singletonList(DEFAULT_EVSE_ID)));
 
     @BeforeEach
     void setUp() {
@@ -52,7 +58,7 @@ public class AuthorizeTest {
         this.stateManagerMock = new StateManager(null, stationStoreMock, stationMessageSenderMock);
         when(stationStoreMock.findEvse(anyInt())).thenReturn(evseMock);
         when(evseMock.getEvseState()).thenReturn(new AvailableState());
-}
+    }
 
     @Test
     void shouldSetToken() {

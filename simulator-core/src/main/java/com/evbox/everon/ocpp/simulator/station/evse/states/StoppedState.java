@@ -8,14 +8,15 @@ import com.evbox.everon.ocpp.simulator.station.component.transactionctrlr.TxStar
 import com.evbox.everon.ocpp.simulator.station.evse.Connector;
 import com.evbox.everon.ocpp.simulator.station.evse.Evse;
 import com.evbox.everon.ocpp.simulator.station.support.TransactionIdGenerator;
-import com.evbox.everon.ocpp.v20.message.station.IdTokenInfo;
-import com.evbox.everon.ocpp.v20.message.station.TransactionData;
-import com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.AuthorizationStatusEnum;
+import com.evbox.everon.ocpp.v20.message.ChargingStateEnum;
+import com.evbox.everon.ocpp.v20.message.ReasonEnum;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest.TriggerReason.AUTHORIZED;
+import static com.evbox.everon.ocpp.v20.message.TriggerReasonEnum.AUTHORIZED;
 import static java.util.Collections.singletonList;
 
 /**
@@ -52,8 +53,8 @@ public class StoppedState extends AbstractEvseState {
                 evse.clearToken();
 
                 stationMessageSender.sendTransactionEventEnded(evseId, connectorId,
-                                                                TransactionEventRequest.TriggerReason.EV_DEPARTED,
-                                                                TransactionData.StoppedReason.EV_DISCONNECTED,
+                                                                TriggerReasonEnum.EV_DEPARTED,
+                                                                ReasonEnum.EV_DISCONNECTED,
                                                                 evse.getWattConsumedLastSession());
             }
             future.complete(UserMessageResult.SUCCESSFUL);
@@ -83,7 +84,7 @@ public class StoppedState extends AbstractEvseState {
 
         CompletableFuture<UserMessageResult> future = new CompletableFuture<>();
         stationMessageSender.sendAuthorizeAndSubscribe(tokenId, singletonList(evseId), (request, response) -> {
-            if (response.getIdTokenInfo().getStatus() == IdTokenInfo.Status.ACCEPTED) {
+            if (response.getIdTokenInfo().getStatus() == AuthorizationStatusEnum.ACCEPTED) {
                 evse.setToken(tokenId);
                 if (!evse.hasOngoingTransaction()) {
                     String transactionId = TransactionIdGenerator.getInstance().getAndIncrement();
@@ -106,6 +107,6 @@ public class StoppedState extends AbstractEvseState {
     private void startCharging(StationMessageSender stationMessageSender, Evse evse, String tokenId) {
         Integer connectorId = evse.lockPluggedConnector();
         evse.startCharging();
-        stationMessageSender.sendTransactionEventUpdate(evse.getId(), connectorId, AUTHORIZED, tokenId, TransactionData.ChargingState.CHARGING);
+        stationMessageSender.sendTransactionEventUpdate(evse.getId(), connectorId, AUTHORIZED, tokenId, ChargingStateEnum.CHARGING);
     }
 }

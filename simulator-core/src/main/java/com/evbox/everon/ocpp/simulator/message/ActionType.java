@@ -1,8 +1,7 @@
 package com.evbox.everon.ocpp.simulator.message;
 
 import com.evbox.everon.ocpp.simulator.station.exceptions.UnknownActionException;
-import com.evbox.everon.ocpp.v20.message.centralserver.*;
-import com.evbox.everon.ocpp.v20.message.station.*;
+import com.evbox.everon.ocpp.v20.message.*;
 
 import java.util.Arrays;
 
@@ -39,7 +38,8 @@ public enum ActionType {
     CANCEL_RESERVATION("CancelReservation", CancelReservationRequest.class, CancelReservationResponse.class),
     DATA_TRANSFER("DataTransfer", DataTransferRequest.class, DataTransferResponse.class),
     NOTIFY_EV_CHARGING_NEEDS("NotifyEVChargingNeeds", NotifyEVChargingNeedsRequest.class, NotifyEVChargingNeedsResponse.class),
-    NOTIFY_CENTRAL_CHARGING_NEEDS("NotifyCentralChargingNeeds", NotifyCentralChargingNeedsRequest.class, NotifyCentralChargingNeedsResponse.class);
+//    NOTIFY_CENTRAL_CHARGING_NEEDS("NotifyCentralChargingNeeds", NotifyCentralChargingNeedsRequest.class, NotifyCentralChargingNeedsResponse.class)
+    ;
 
 
     private final String actionTypeName;

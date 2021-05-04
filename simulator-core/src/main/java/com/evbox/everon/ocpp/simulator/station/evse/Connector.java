@@ -1,12 +1,12 @@
 package com.evbox.everon.ocpp.simulator.station.evse;
 
+import com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import static com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest.ConnectorStatus;
-import static com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest.ConnectorStatus.AVAILABLE;
-import static com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest.ConnectorStatus.OCCUPIED;
+import static com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum.AVAILABLE;
+import static com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum.OCCUPIED;
 
 /**
  * Represents a Connector of the EVSE.
@@ -18,7 +18,7 @@ public class Connector {
 
     private final Integer id;
     private CableStatus cableStatus;
-    private ConnectorStatus connectorStatus;
+    private ConnectorStatusEnum connectorStatus;
 
     /**
      * Change the cable status to {@code CableStatus.PLUGGED}. If status is not {@code CableStatus.UNPLUGGED}
@@ -77,9 +77,9 @@ public class Connector {
     /**
      * Setter for connector status.
      *
-     * @param connectorStatus {@link ConnectorStatus}
+     * @param connectorStatus {@link ConnectorStatusEnum}
      */
-    public void setConnectorStatus(ConnectorStatus connectorStatus) {
+    public void setConnectorStatus(ConnectorStatusEnum connectorStatus) {
         this.connectorStatus = connectorStatus;
     }
 
@@ -121,6 +121,6 @@ public class Connector {
 
         private final Integer id;
         private final CableStatus cableStatus;
-        private final ConnectorStatus connectorStatus;
+        private final ConnectorStatusEnum connectorStatus;
     }
 }

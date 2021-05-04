@@ -3,19 +3,18 @@ package com.evbox.everon.ocpp.simulator.station.component.ocppcommctrlr;
 import com.evbox.everon.ocpp.common.CiString;
 import com.evbox.everon.ocpp.simulator.station.Station;
 import com.evbox.everon.ocpp.simulator.station.StationStore;
-
 import com.evbox.everon.ocpp.simulator.station.component.variable.VariableGetter;
 import com.evbox.everon.ocpp.simulator.station.component.variable.VariableSetter;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributePath;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributeType;
-import com.evbox.everon.ocpp.v20.message.centralserver.Component;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableResult;
-import com.evbox.everon.ocpp.v20.message.centralserver.Variable;
-import com.evbox.everon.ocpp.v20.message.station.ConnectionData;
-import com.evbox.everon.ocpp.v20.message.station.ReportDatum;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.NetworkConnectionProfile;
+import com.evbox.everon.ocpp.v20.message.ReportData;
+import com.evbox.everon.ocpp.v20.message.SetVariableResult;
+import com.evbox.everon.ocpp.v20.message.SetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.Variable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,15 +23,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.evbox.everon.ocpp.mock.constants.VariableConstants.*;
+import static com.evbox.everon.ocpp.mock.constants.VariableConstants.COMM_COMPONENT_NAME;
+import static com.evbox.everon.ocpp.mock.constants.VariableConstants.NETWORK_CONFIGURATION_PRIORITY_VARIABLE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class NetworkConfigurationPriorityVariableAccessorTest {
 
     private static final List<Integer> PRIORITY_LIST = Arrays.asList(1, 2, 3);
-    private static final CiString.CiString1000 NETWORK_CONFIGURATION_PRIORITY_ATTRIBUTE_LIST = new CiString.CiString1000(String.valueOf(PRIORITY_LIST));
+    private static final CiString.CiString2500 NETWORK_CONFIGURATION_PRIORITY_ATTRIBUTE_LIST = new CiString.CiString2500(String.valueOf(PRIORITY_LIST));
     private static final CiString.CiString1000 NETWORK_CONFIGURATION_PRIORITY_ATTRIBUTE_SINGLE = new CiString.CiString1000("1");
 
     @Mock(lenient = true)
@@ -76,13 +79,13 @@ class NetworkConfigurationPriorityVariableAccessorTest {
 
     @Test
     void getVariableValidatorsValidValue() {
-        Map<Integer, ConnectionData> networkConnectionProfiles = Map.of(1, new ConnectionData(), 2, new ConnectionData());
+        Map<Integer, NetworkConnectionProfile> networkConnectionProfiles = Map.of(1, new NetworkConnectionProfile(), 2, new NetworkConnectionProfile());
 
         when(stationStore.getNetworkConnectionProfiles()).thenReturn(networkConnectionProfiles);
 
         final SetVariableResult result = variableAccessor.validate(attributePath(), NETWORK_CONFIGURATION_PRIORITY_ATTRIBUTE_SINGLE);
 
-        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableResult.AttributeStatus.ACCEPTED);
+        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableStatusEnum.ACCEPTED);
 
         verify(stationStore).getNetworkConnectionProfiles();
         verifyZeroInteractions(station);
@@ -90,13 +93,13 @@ class NetworkConfigurationPriorityVariableAccessorTest {
 
     @Test
     void getVariableValidatorsInvalidValue() {
-        Map<Integer, ConnectionData> networkConnectionProfiles = Map.of(3, new ConnectionData(), 4, new ConnectionData());
+        Map<Integer, NetworkConnectionProfile> networkConnectionProfiles = Map.of(3, new NetworkConnectionProfile(), 4, new NetworkConnectionProfile());
 
         when(stationStore.getNetworkConnectionProfiles()).thenReturn(networkConnectionProfiles);
 
         final SetVariableResult result = variableAccessor.validate(attributePath(), NETWORK_CONFIGURATION_PRIORITY_ATTRIBUTE_SINGLE);
 
-        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableResult.AttributeStatus.INVALID_VALUE);
+        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE);
 
         verify(stationStore).getNetworkConnectionProfiles();
         verifyZeroInteractions(station);
@@ -104,13 +107,13 @@ class NetworkConfigurationPriorityVariableAccessorTest {
 
     @Test
     void getVariableValidatorsInvalidValueNan() {
-        Map<Integer, ConnectionData> networkConnectionProfiles = Map.of(3, new ConnectionData(), 4, new ConnectionData());
+        Map<Integer, NetworkConnectionProfile> networkConnectionProfiles = Map.of(3, new NetworkConnectionProfile(), 4, new NetworkConnectionProfile());
 
         when(stationStore.getNetworkConnectionProfiles()).thenReturn(networkConnectionProfiles);
 
         SetVariableResult result = variableAccessor.validate(attributePath(), new CiString.CiString1000("asd"));
 
-        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableResult.AttributeStatus.INVALID_VALUE);
+        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE);
 
         verifyZeroInteractions(stationStore);
         verifyZeroInteractions(station);
@@ -120,7 +123,7 @@ class NetworkConfigurationPriorityVariableAccessorTest {
     void generateReportData() {
         when(stationStore.getNetworkConfigurationPriority()).thenReturn(PRIORITY_LIST);
 
-        final List<ReportDatum> reportData = variableAccessor.generateReportData(COMM_COMPONENT_NAME);
+        final List<ReportData> reportData = variableAccessor.generateReportData(COMM_COMPONENT_NAME);
 
         assertThat(NETWORK_CONFIGURATION_PRIORITY_ATTRIBUTE_LIST).isEqualTo(reportData.get(0).getVariableAttribute().get(0).getValue());
 

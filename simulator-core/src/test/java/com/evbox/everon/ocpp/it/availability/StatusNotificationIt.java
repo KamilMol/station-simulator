@@ -6,8 +6,10 @@ import com.evbox.everon.ocpp.mock.csms.exchange.TransactionEvent;
 import com.evbox.everon.ocpp.simulator.station.actions.user.Plug;
 import org.junit.jupiter.api.Test;
 
-import static com.evbox.everon.ocpp.mock.constants.StationConstants.*;
-import static com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest.ConnectorStatus.OCCUPIED;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_CONNECTOR_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_EVSE_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.STATION_ID;
+import static com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum.OCCUPIED;
 import static org.awaitility.Awaitility.await;
 
 public class StatusNotificationIt extends StationSimulatorSetUp {

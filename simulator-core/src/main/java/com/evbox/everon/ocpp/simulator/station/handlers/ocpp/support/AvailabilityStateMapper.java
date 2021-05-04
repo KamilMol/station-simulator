@@ -1,23 +1,23 @@
 package com.evbox.everon.ocpp.simulator.station.handlers.ocpp.support;
 
 import com.evbox.everon.ocpp.simulator.station.evse.EvseStatus;
-import com.evbox.everon.ocpp.v20.message.station.ChangeAvailabilityRequest.OperationalStatus;
+import com.evbox.everon.ocpp.v20.message.OperationalStatusEnum;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
 import static com.evbox.everon.ocpp.simulator.station.evse.EvseStatus.AVAILABLE;
 import static com.evbox.everon.ocpp.simulator.station.evse.EvseStatus.UNAVAILABLE;
-import static com.evbox.everon.ocpp.v20.message.station.ChangeAvailabilityRequest.OperationalStatus.INOPERATIVE;
-import static com.evbox.everon.ocpp.v20.message.station.ChangeAvailabilityRequest.OperationalStatus.OPERATIVE;
+import static com.evbox.everon.ocpp.v20.message.OperationalStatusEnum.INOPERATIVE;
+import static com.evbox.everon.ocpp.v20.message.OperationalStatusEnum.OPERATIVE;
 import static java.util.Objects.nonNull;
 
 /**
- * Mapper from {@link OperationalStatus} status to EVSE status.
+ * Mapper from {@link OperationalStatusEnum} status to EVSE status.
  */
 public class AvailabilityStateMapper {
 
-    private static final Map<OperationalStatus, EvseStatus> MAPPER = ImmutableMap.of(
+    private static final Map<OperationalStatusEnum, EvseStatus> MAPPER = ImmutableMap.of(
             OPERATIVE, AVAILABLE,
             INOPERATIVE, UNAVAILABLE
     );
@@ -25,10 +25,10 @@ public class AvailabilityStateMapper {
     /**
      * Map request status to {@link EvseStatus}.
      *
-     * @param operationalStatus {@link OperationalStatus}
+     * @param operationalStatus {@link OperationalStatusEnum}
      * @return {@link EvseStatus}
      */
-    public EvseStatus mapFrom(OperationalStatus operationalStatus) {
+    public EvseStatus mapFrom(OperationalStatusEnum operationalStatus) {
         EvseStatus evseStatus = MAPPER.get(operationalStatus);
 
         if (nonNull(evseStatus)) {

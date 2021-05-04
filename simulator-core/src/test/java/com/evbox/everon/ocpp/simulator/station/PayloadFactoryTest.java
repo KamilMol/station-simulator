@@ -1,11 +1,13 @@
 package com.evbox.everon.ocpp.simulator.station;
 
-import com.evbox.everon.ocpp.v20.message.centralserver.DataTransferRequest;
+import com.evbox.everon.ocpp.v20.message.DataTransferRequest;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.evbox.everon.ocpp.simulator.station.PayloadFactory.*;
+import static com.evbox.everon.ocpp.simulator.station.PayloadFactory.GENERAL_CONFIGURATION;
+import static com.evbox.everon.ocpp.simulator.station.PayloadFactory.PUBLIC_KEY;
+import static com.evbox.everon.ocpp.simulator.station.PayloadFactory.SET_METER_CONFIGURATION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PayloadFactoryTest {

@@ -2,9 +2,10 @@ package com.evbox.everon.ocpp.simulator.station.handlers.ocpp;
 
 import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
 import com.evbox.everon.ocpp.simulator.station.component.StationComponentsHolder;
-import com.evbox.everon.ocpp.v20.message.station.GetBaseReportRequest;
-import com.evbox.everon.ocpp.v20.message.station.GetBaseReportResponse;
-import com.evbox.everon.ocpp.v20.message.station.ReportDatum;
+import com.evbox.everon.ocpp.v20.message.GenericDeviceModelStatusEnum;
+import com.evbox.everon.ocpp.v20.message.GetBaseReportRequest;
+import com.evbox.everon.ocpp.v20.message.GetBaseReportResponse;
+import com.evbox.everon.ocpp.v20.message.ReportData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,9 +24,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_MESSAGE_ID;
-import static com.evbox.everon.ocpp.v20.message.station.GetBaseReportRequest.ReportBase.*;
-import static com.evbox.everon.ocpp.v20.message.station.GetBaseReportResponse.Status.ACCEPTED;
-import static com.evbox.everon.ocpp.v20.message.station.GetBaseReportResponse.Status.NOT_SUPPORTED;
+import static com.evbox.everon.ocpp.v20.message.ReportBaseEnum.CONFIGURATION_INVENTORY;
+import static com.evbox.everon.ocpp.v20.message.ReportBaseEnum.FULL_INVENTORY;
+import static com.evbox.everon.ocpp.v20.message.ReportBaseEnum.SUMMARY_INVENTORY;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.time.ZonedDateTime.ofInstant;
 import static java.util.Collections.singletonList;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class GetAbstractBaseReportRequestHandlerTest {
 
     private static final int REQUEST_ID = 300;
-    private static final ReportDatum REPORT_DATUM = new ReportDatum();
+    private static final ReportData REPORT_DATUM = new ReportData();
 
     @Mock
     StationMessageSender stationMessageSenderMock;
@@ -64,7 +65,7 @@ public class GetAbstractBaseReportRequestHandlerTest {
         requestHandler.handle(DEFAULT_MESSAGE_ID, new GetBaseReportRequest().withReportBase(SUMMARY_INVENTORY));
 
         verify(stationMessageSenderMock).sendCallResult(any(), messageCaptor.capture());
-        assertThat(messageCaptor.getValue().getStatus()).isEqualTo(ACCEPTED);
+        assertThat(messageCaptor.getValue().getStatus()).isEqualTo(GenericDeviceModelStatusEnum.ACCEPTED);
     }
 
     @Test
@@ -78,7 +79,7 @@ public class GetAbstractBaseReportRequestHandlerTest {
         verify(stationMessageSenderMock).sendCallResult(any(), messageCaptor.capture());
         verify(stationMessageSenderMock).sendNotifyReport(REQUEST_ID, true, 0, now(), singletonList(REPORT_DATUM));
         verify(stationMessageSenderMock).sendNotifyReport(REQUEST_ID, false, 1, now(), singletonList(REPORT_DATUM));
-        assertThat(messageCaptor.getValue().getStatus()).isEqualTo(ACCEPTED);
+        assertThat(messageCaptor.getValue().getStatus()).isEqualTo(GenericDeviceModelStatusEnum.ACCEPTED);
     }
 
     @Test
@@ -91,7 +92,7 @@ public class GetAbstractBaseReportRequestHandlerTest {
 
         verify(stationMessageSenderMock).sendCallResult(any(), messageCaptor.capture());
         verify(stationMessageSenderMock).sendNotifyReport(REQUEST_ID, false, 0, now(), singletonList(REPORT_DATUM));
-        assertThat(messageCaptor.getValue().getStatus()).isEqualTo(ACCEPTED);
+        assertThat(messageCaptor.getValue().getStatus()).isEqualTo(GenericDeviceModelStatusEnum.ACCEPTED);
     }
 
     @Test

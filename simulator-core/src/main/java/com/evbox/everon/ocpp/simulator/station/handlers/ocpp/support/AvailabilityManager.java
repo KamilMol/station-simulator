@@ -5,12 +5,15 @@ import com.evbox.everon.ocpp.simulator.station.StationStore;
 import com.evbox.everon.ocpp.simulator.station.evse.Connector;
 import com.evbox.everon.ocpp.simulator.station.evse.Evse;
 import com.evbox.everon.ocpp.simulator.station.evse.EvseStatus;
-import com.evbox.everon.ocpp.v20.message.station.ChangeAvailabilityRequest;
-import com.evbox.everon.ocpp.v20.message.station.ChangeAvailabilityResponse;
+import com.evbox.everon.ocpp.v20.message.ChangeAvailabilityRequest;
+import com.evbox.everon.ocpp.v20.message.ChangeAvailabilityResponse;
+import com.evbox.everon.ocpp.v20.message.ChangeAvailabilityStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.evbox.everon.ocpp.v20.message.station.ChangeAvailabilityResponse.Status.*;
+import static com.evbox.everon.ocpp.v20.message.ChangeAvailabilityStatusEnum.ACCEPTED;
+import static com.evbox.everon.ocpp.v20.message.ChangeAvailabilityStatusEnum.REJECTED;
+import static com.evbox.everon.ocpp.v20.message.ChangeAvailabilityStatusEnum.SCHEDULED;
 
 @Slf4j
 @AllArgsConstructor
@@ -36,9 +39,9 @@ public class AvailabilityManager {
     public void changeEvseAvailability(String callId, ChangeAvailabilityRequest request, EvseStatus requestedEvseStatus) {
 
         try {
-            Evse evse = stationStore.findEvse(request.getEvseId());
+            Evse evse = stationStore.findEvse(request.getEvse().getId());
 
-            ChangeAvailabilityResponse.Status evseStatus = determineEvseStatus(requestedEvseStatus, evse);
+            ChangeAvailabilityStatusEnum evseStatus = determineEvseStatus(requestedEvseStatus, evse);
 
             sendResponseWithStatus(callId, evseStatus);
 
@@ -72,7 +75,7 @@ public class AvailabilityManager {
             return;
         }
 
-        ChangeAvailabilityResponse.Status stationStatus = determineStationStatus(requestedEvseStatus);
+        ChangeAvailabilityStatusEnum stationStatus = determineStationStatus(requestedEvseStatus);
 
         sendResponseWithStatus(callId, stationStatus);
 
@@ -81,13 +84,13 @@ public class AvailabilityManager {
     }
 
 
-    private ChangeAvailabilityResponse.Status determineStationStatus(EvseStatus requestedEvseStatus) {
+    private ChangeAvailabilityStatusEnum determineStationStatus(EvseStatus requestedEvseStatus) {
 
-        ChangeAvailabilityResponse.Status stationStatus = null;
+        ChangeAvailabilityStatusEnum stationStatus = null;
 
         for (Evse evse : stationStore.getEvses()) {
 
-            ChangeAvailabilityResponse.Status evseStatus = determineEvseStatus(requestedEvseStatus, evse);
+            ChangeAvailabilityStatusEnum evseStatus = determineEvseStatus(requestedEvseStatus, evse);
 
             if (stationStatus != SCHEDULED) {
                 stationStatus = evseStatus;
@@ -97,7 +100,7 @@ public class AvailabilityManager {
         return stationStatus;
     }
 
-    private ChangeAvailabilityResponse.Status determineEvseStatus(EvseStatus requestedEvseStatus, Evse evse) {
+    private ChangeAvailabilityStatusEnum determineEvseStatus(EvseStatus requestedEvseStatus, Evse evse) {
 
         if (evse.hasStatus(requestedEvseStatus)) {
             return ACCEPTED;
@@ -117,7 +120,7 @@ public class AvailabilityManager {
 
     }
 
-    private void sendResponseWithStatus(String callId, ChangeAvailabilityResponse.Status status) {
+    private void sendResponseWithStatus(String callId, ChangeAvailabilityStatusEnum status) {
         stationMessageSender.sendCallResult(callId, new ChangeAvailabilityResponse().withStatus(status));
     }
 

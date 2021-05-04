@@ -11,10 +11,10 @@ import com.evbox.everon.ocpp.simulator.station.evse.StateManager;
 import com.evbox.everon.ocpp.simulator.station.evse.states.AvailableState;
 import com.evbox.everon.ocpp.simulator.station.evse.states.WaitingForPlugState;
 import com.evbox.everon.ocpp.simulator.station.subscription.Subscriber;
-import com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest;
-import com.evbox.everon.ocpp.v20.message.station.StatusNotificationResponse;
-import com.evbox.everon.ocpp.v20.message.station.TransactionData;
-import com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.ChargingStateEnum;
+import com.evbox.everon.ocpp.v20.message.StatusNotificationRequest;
+import com.evbox.everon.ocpp.v20.message.StatusNotificationResponse;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,8 +27,12 @@ import java.util.Arrays;
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_CONNECTOR_ID;
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_EVSE_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class PlugTest {
@@ -85,8 +89,8 @@ public class PlugTest {
 
         subscriberCaptor.getValue().onResponse(new StatusNotificationRequest(), new StatusNotificationResponse());
 
-        verify(stationMessageSenderMock, times(2)).sendTransactionEventUpdate(anyInt(), anyInt(), any(TransactionEventRequest.TriggerReason.class),
-                isNull(), any(TransactionData.ChargingState.class));
+        verify(stationMessageSenderMock, times(2)).sendTransactionEventUpdate(anyInt(), anyInt(), any(TriggerReasonEnum.class),
+                isNull(), any(ChargingStateEnum.class));
 
     }
 
@@ -109,8 +113,8 @@ public class PlugTest {
 
         subscriberCaptor.getValue().onResponse(new StatusNotificationRequest(), new StatusNotificationResponse());
 
-        verify(stationMessageSenderMock).sendTransactionEventStart(anyInt(), anyInt(), any(TransactionEventRequest.TriggerReason.class),
-                any(TransactionData.ChargingState.class));
+        verify(stationMessageSenderMock).sendTransactionEventStart(anyInt(), anyInt(), any(TriggerReasonEnum.class),
+                any(ChargingStateEnum.class));
 
     }
 }

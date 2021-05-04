@@ -3,8 +3,8 @@ package com.evbox.everon.ocpp.simulator.station.schedulers;
 import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
 import com.evbox.everon.ocpp.simulator.station.StationStore;
 import com.evbox.everon.ocpp.simulator.station.evse.Evse;
-import com.evbox.everon.ocpp.v20.message.station.TransactionData;
-import com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.ChargingStateEnum;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -40,7 +40,7 @@ public class MeterValuesSenderTask implements Runnable {
             for (Evse evse : stationStore.getEvses()) {
                 if (shouldSendMeterValue(now, evse.getId(), stationStore.createView())) {
                     long powerUsed = evse.incrementPowerConsumed(powerIncreasedPerInterval);
-                    stationMessageSender.sendTransactionEventUpdate(evse.getId(), null, TransactionEventRequest.TriggerReason.METER_VALUE_PERIODIC, TransactionData.ChargingState.CHARGING, powerUsed);
+                    stationMessageSender.sendTransactionEventUpdate(evse.getId(), null, TriggerReasonEnum.METER_VALUE_PERIODIC, ChargingStateEnum.CHARGING, powerUsed);
                     timeOfLastMeterValuePerEVSE.put(evse.getId(), now);
                 }
             }

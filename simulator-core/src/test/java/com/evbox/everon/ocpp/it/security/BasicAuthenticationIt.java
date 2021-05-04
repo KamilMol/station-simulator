@@ -5,13 +5,18 @@ import com.evbox.everon.ocpp.simulator.StationSimulatorRunner;
 import com.evbox.everon.ocpp.simulator.configuration.SimulatorConfiguration;
 import com.evbox.everon.ocpp.simulator.message.ActionType;
 import com.evbox.everon.ocpp.simulator.message.Call;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableDatum;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariablesRequest;
+import com.evbox.everon.ocpp.v20.message.AttributeEnum;
+import com.evbox.everon.ocpp.v20.message.SetVariablesRequest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static com.evbox.everon.ocpp.mock.constants.StationConstants.*;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.BASIC_AUTH_PASSWORD;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_CALL_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.EVSE_CONNECTORS_TWO;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.EVSE_COUNT_TWO;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.OCPP_SERVER_URL;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.STATION_ID;
 import static com.evbox.everon.ocpp.mock.constants.VariableConstants.BASIC_AUTH_PASSWORD_VARIABLE_NAME;
 import static com.evbox.everon.ocpp.mock.constants.VariableConstants.SECURITY_COMPONENT_NAME;
 import static com.evbox.everon.ocpp.mock.factory.SetVariablesCreator.createSetVariablesRequest;
@@ -92,7 +97,7 @@ public class BasicAuthenticationIt extends StationSimulatorSetUp {
                 SECURITY_COMPONENT_NAME,
                 BASIC_AUTH_PASSWORD_VARIABLE_NAME,
                 newPassword,
-                SetVariableDatum.AttributeType.ACTUAL);
+                AttributeEnum.ACTUAL);
 
         Call call = new Call(DEFAULT_CALL_ID, ActionType.SET_VARIABLES, setVariablesRequest);
 

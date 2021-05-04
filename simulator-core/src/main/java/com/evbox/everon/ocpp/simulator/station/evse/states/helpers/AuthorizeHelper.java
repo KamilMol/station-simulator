@@ -7,8 +7,9 @@ import com.evbox.everon.ocpp.simulator.station.component.transactionctrlr.TxStar
 import com.evbox.everon.ocpp.simulator.station.evse.Connector;
 import com.evbox.everon.ocpp.simulator.station.evse.Evse;
 import com.evbox.everon.ocpp.simulator.station.evse.StateManager;
-import com.evbox.everon.ocpp.v20.message.station.TransactionData;
-import com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.ChargingStateEnum;
+import com.evbox.everon.ocpp.v20.message.ReasonEnum;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
 
 import java.util.Optional;
 
@@ -31,14 +32,14 @@ public final class AuthorizeHelper {
             if (!stopPoints.contains(TxStartStopPointVariableValues.AUTHORIZED)) {
                 stationMessageSender.sendTransactionEventUpdate(evse.getId(),
                         connector.map(Connector::getId).orElse(null),
-                        TransactionEventRequest.TriggerReason.DEAUTHORIZED,
-                        TransactionData.ChargingState.SUSPENDED_EVSE,
+                        TriggerReasonEnum.DEAUTHORIZED,
+                        ChargingStateEnum.SUSPENDED_EVSE,
                         evse.getTotalConsumedWattHours());
             } else {
                 stationMessageSender.sendTransactionEventEnded(evse.getId(),
                         connector.map(Connector::getId).orElse(null),
-                        TransactionEventRequest.TriggerReason.DEAUTHORIZED,
-                        TransactionData.StoppedReason.DE_AUTHORIZED,
+                        TriggerReasonEnum.DEAUTHORIZED,
+                        ReasonEnum.DE_AUTHORIZED,
                         evse.getWattConsumedLastSession());
             }
         }

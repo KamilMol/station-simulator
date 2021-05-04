@@ -1,15 +1,32 @@
 package com.evbox.everon.ocpp.mock.factory;
 
 import com.evbox.everon.ocpp.common.CiString;
-import com.evbox.everon.ocpp.v20.message.centralserver.*;
-import com.evbox.everon.ocpp.v20.message.common.Evse;
-import com.evbox.everon.ocpp.v20.message.common.IdToken;
-import com.evbox.everon.ocpp.v20.message.common.MeterValue;
-import com.evbox.everon.ocpp.v20.message.common.SampledValue;
-import com.evbox.everon.ocpp.v20.message.station.AuthorizeRequest;
-import com.evbox.everon.ocpp.v20.message.station.RequestStartTransactionRequest;
-import com.evbox.everon.ocpp.v20.message.station.TransactionData;
-import com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.AttributeEnum;
+import com.evbox.everon.ocpp.v20.message.AuthorizeRequest;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.EVSE;
+import com.evbox.everon.ocpp.v20.message.GetVariableData;
+import com.evbox.everon.ocpp.v20.message.GetVariableResult;
+import com.evbox.everon.ocpp.v20.message.GetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.GetVariablesRequest;
+import com.evbox.everon.ocpp.v20.message.GetVariablesResponse;
+import com.evbox.everon.ocpp.v20.message.IdToken;
+import com.evbox.everon.ocpp.v20.message.IdTokenEnum;
+import com.evbox.everon.ocpp.v20.message.MeterValue;
+import com.evbox.everon.ocpp.v20.message.RequestStartTransactionRequest;
+import com.evbox.everon.ocpp.v20.message.ResetEnum;
+import com.evbox.everon.ocpp.v20.message.ResetRequest;
+import com.evbox.everon.ocpp.v20.message.SampledValue;
+import com.evbox.everon.ocpp.v20.message.SetVariableData;
+import com.evbox.everon.ocpp.v20.message.SetVariableResult;
+import com.evbox.everon.ocpp.v20.message.SetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.SetVariablesRequest;
+import com.evbox.everon.ocpp.v20.message.SetVariablesResponse;
+import com.evbox.everon.ocpp.v20.message.Transaction;
+import com.evbox.everon.ocpp.v20.message.TransactionEventEnum;
+import com.evbox.everon.ocpp.v20.message.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
+import com.evbox.everon.ocpp.v20.message.Variable;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -55,7 +72,7 @@ public class OcppMessageFactory {
 
         public GetVariablesRequest build() {
 
-            GetVariableDatum getVariableDatum = new GetVariableDatum();
+            GetVariableData getVariableDatum = new GetVariableData();
             getVariableDatum.setComponent(component);
             getVariableDatum.setVariable(variable);
             GetVariablesRequest getVariablesRequest = new GetVariablesRequest();
@@ -68,26 +85,26 @@ public class OcppMessageFactory {
     public static class SetVariablesRequestBuilder extends SkeletonBuilder<SetVariablesRequestBuilder> {
 
         private CiString.CiString1000 attributeValue;
-        private SetVariableDatum.AttributeType attributeType = SetVariableDatum.AttributeType.ACTUAL;
+        private AttributeEnum attributeType = AttributeEnum.ACTUAL;
 
         public SetVariablesRequestBuilder withAttributeValue(String attributeValue) {
             this.attributeValue = new CiString.CiString1000(attributeValue);
             return this;
         }
 
-        public SetVariablesRequestBuilder withAttributeType(SetVariableDatum.AttributeType attributeType) {
+        public SetVariablesRequestBuilder withAttributeType(AttributeEnum attributeType) {
             this.attributeType = attributeType;
             return this;
         }
 
         public SetVariablesRequest build() {
-            SetVariableDatum setVariableDatum = new SetVariableDatum();
-            setVariableDatum.setComponent(component);
-            setVariableDatum.setVariable(variable);
-            setVariableDatum.setAttributeValue(attributeValue);
-            setVariableDatum.setAttributeType(attributeType);
+            SetVariableData SetVariableData = new SetVariableData();
+            SetVariableData.setComponent(component);
+            SetVariableData.setVariable(variable);
+            SetVariableData.setAttributeValue(attributeValue);
+            SetVariableData.setAttributeType(attributeType);
             SetVariablesRequest setVariablesRequest = new SetVariablesRequest();
-            setVariablesRequest.setSetVariableData(singletonList(setVariableDatum));
+            setVariablesRequest.setSetVariableData(singletonList(SetVariableData));
 
             return setVariablesRequest;
         }
@@ -95,9 +112,9 @@ public class OcppMessageFactory {
 
     public static class ResetRequestBuilder {
 
-        private ResetRequest.Type type;
+        private ResetEnum type;
 
-        public ResetRequestBuilder withType(ResetRequest.Type type) {
+        public ResetRequestBuilder withType(ResetEnum type) {
             this.type = type;
             return this;
         }
@@ -141,16 +158,16 @@ public class OcppMessageFactory {
 
     public static class GetVariablesResponseBuilder extends SkeletonBuilder<GetVariablesResponseBuilder> {
 
-        private GetVariableResult.AttributeStatus attributeStatus;
-        private CiString.CiString1000 attributeValue;
+        private GetVariableStatusEnum attributeStatus;
+        private CiString.CiString2500 attributeValue;
 
-        public GetVariablesResponseBuilder withAttributeStatus(GetVariableResult.AttributeStatus attributeStatus) {
+        public GetVariablesResponseBuilder withAttributeStatus(GetVariableStatusEnum attributeStatus) {
             this.attributeStatus = attributeStatus;
             return this;
         }
 
         public GetVariablesResponseBuilder withAttributeValue(String attributeValue) {
-            this.attributeValue = new CiString.CiString1000(attributeValue);
+            this.attributeValue = new CiString.CiString2500(attributeValue);
             return this;
         }
 
@@ -171,9 +188,9 @@ public class OcppMessageFactory {
 
     public static class SetVariablesResponseBuilder extends SkeletonBuilder<SetVariablesResponseBuilder> {
 
-        private SetVariableResult.AttributeStatus attributeStatus;
+        private SetVariableStatusEnum attributeStatus;
 
-        public SetVariablesResponseBuilder withAttributeStatus(SetVariableResult.AttributeStatus attributeStatus) {
+        public SetVariablesResponseBuilder withAttributeStatus(SetVariableStatusEnum attributeStatus) {
             this.attributeStatus = attributeStatus;
             return this;
         }
@@ -193,18 +210,18 @@ public class OcppMessageFactory {
 
     public static class TransactionEventBuilder {
 
-        private TransactionEventRequest.EventType eventType;
+        private TransactionEventEnum eventType;
         private int sampledValue;
         private Instant meterValueTimestamp;
         private Instant timestamp;
-        private TransactionEventRequest.TriggerReason triggerReason;
-        private long seqNo;
+        private TriggerReasonEnum triggerReason;
+        private int seqNo;
         private String transactionId;
         private int evseId;
         private String tokenId;
-        private IdToken.Type tokenType;
+        private IdTokenEnum tokenType;
 
-        public TransactionEventBuilder withEventType(TransactionEventRequest.EventType eventType) {
+        public TransactionEventBuilder withEventType(TransactionEventEnum eventType) {
             this.eventType = eventType;
             return this;
         }
@@ -224,7 +241,7 @@ public class OcppMessageFactory {
             return this;
         }
 
-        public TransactionEventBuilder withTriggerReason(TransactionEventRequest.TriggerReason triggerReason) {
+        public TransactionEventBuilder withTriggerReason(TriggerReasonEnum triggerReason) {
             this.triggerReason = triggerReason;
             return this;
         }
@@ -249,7 +266,7 @@ public class OcppMessageFactory {
             return this;
         }
 
-        public TransactionEventBuilder withTokenType(IdToken.Type tokenType) {
+        public TransactionEventBuilder withTokenType(IdTokenEnum tokenType) {
             this.tokenType = tokenType;
             return this;
         }
@@ -268,8 +285,8 @@ public class OcppMessageFactory {
                     .withTimestamp(timestamp.atZone(ZoneOffset.UTC))
                     .withTriggerReason(triggerReason)
                     .withSeqNo(seqNo)
-                    .withTransactionData(new TransactionData().withId(new CiString.CiString36(transactionId)))
-                    .withEvse(new Evse().withId(evseId))
+                    .withTransactionInfo(new Transaction().withTransactionId(new CiString.CiString36(transactionId)))
+                    .withEvse(new EVSE().withId(evseId))
                     .withIdToken(idToken);
 
         }
@@ -293,8 +310,9 @@ public class OcppMessageFactory {
 
         public AuthorizeRequest build() {
             return new AuthorizeRequest()
-                    .withIdToken(new IdToken().withIdToken(new CiString.CiString36(tokenId)).withType(IdToken.Type.ISO_14443))
-                    .withEvseId(Collections.singletonList(evseId));
+                    .withIdToken(new IdToken().withIdToken(new CiString.CiString36(tokenId)).withType(IdTokenEnum.ISO_14443))
+//                    .withEvseId(Collections.singletonList(evseId))
+                    ;
         }
     }
 

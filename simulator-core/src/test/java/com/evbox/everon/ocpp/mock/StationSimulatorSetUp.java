@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.*;
 import static com.evbox.everon.ocpp.mock.expect.ExpectedCount.atLeastOnce;
-import static com.evbox.everon.ocpp.v20.message.station.BootNotificationRequest.Reason.POWER_UP;
+import static com.evbox.everon.ocpp.v20.message.BootReasonEnum.POWER_UP;
 
 public class StationSimulatorSetUp  {
 

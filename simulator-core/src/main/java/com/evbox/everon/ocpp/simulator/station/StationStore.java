@@ -1,6 +1,7 @@
 package com.evbox.everon.ocpp.simulator.station;
 
 import com.evbox.everon.ocpp.common.OptionList;
+import com.evbox.everon.ocpp.simulator.additionals.Reservation;
 import com.evbox.everon.ocpp.simulator.configuration.SimulatorConfiguration;
 import com.evbox.everon.ocpp.simulator.station.component.transactionctrlr.TxStartStopPointVariableValues;
 import com.evbox.everon.ocpp.simulator.station.evse.CableStatus;
@@ -8,9 +9,8 @@ import com.evbox.everon.ocpp.simulator.station.evse.Connector;
 import com.evbox.everon.ocpp.simulator.station.evse.Evse;
 import com.evbox.everon.ocpp.simulator.station.evse.Evse.EvseView;
 import com.evbox.everon.ocpp.simulator.station.exceptions.StationException;
-import com.evbox.everon.ocpp.v20.message.station.ConnectionData;
-import com.evbox.everon.ocpp.v20.message.station.Reservation;
-import com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest;
+import com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum;
+import com.evbox.everon.ocpp.v20.message.NetworkConnectionProfile;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -54,7 +54,7 @@ public class StationStore {
     private List<X509Certificate> stationCertificateChain;
     private PublicKey stationPublicKey;
     private PrivateKey stationPrivateKey;
-    private Map<Integer, ConnectionData> networkConnectionProfiles = new HashMap<>();
+    private Map<Integer, NetworkConnectionProfile> networkConnectionProfiles = new HashMap<>();
     private List<Integer> networkConfigurationPriority = new ArrayList<>();
     private List<Reservation> reservations = new ArrayList<>();
 
@@ -164,9 +164,9 @@ public class StationStore {
         return new ArrayList<>(evses.values());
     }
 
-    public void addNetworkConnectionProfile(Integer configurationSlot, ConnectionData data) { networkConnectionProfiles.put(configurationSlot, data); }
+    public void addNetworkConnectionProfile(Integer configurationSlot, NetworkConnectionProfile data) { networkConnectionProfiles.put(configurationSlot, data); }
 
-    public Map<Integer, ConnectionData> getNetworkConnectionProfiles() {
+    public Map<Integer, NetworkConnectionProfile> getNetworkConnectionProfiles() {
         return networkConnectionProfiles;
     }
 
@@ -279,7 +279,7 @@ public class StationStore {
         return this.networkConfigurationPriority;
     }
 
-    private Map<Integer, Evse> initEvses(Integer evseCount, Integer connectorsPerEvseCount, StatusNotificationRequest.ConnectorStatus connectorStatus) {
+    private Map<Integer, Evse> initEvses(Integer evseCount, Integer connectorsPerEvseCount, ConnectorStatusEnum connectorStatus) {
 
         ImmutableMap.Builder<Integer, Evse> evseMapBuilder = ImmutableMap.builder();
 

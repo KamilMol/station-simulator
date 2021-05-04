@@ -28,7 +28,7 @@ public class Heartbeat {
      * @return response in json.
      */
     public static Function<Call, String> response(ZonedDateTime serverTime) {
-        return incomingRequest -> JsonMessageTypeFactory.createCallResult()
+        return incomingRequest -> JsonMessageTypeFactory.createCallResult2()
                 .withMessageId(incomingRequest.getMessageId())
                 .withCurrentTime(serverTime.toString())
                 .toJson();

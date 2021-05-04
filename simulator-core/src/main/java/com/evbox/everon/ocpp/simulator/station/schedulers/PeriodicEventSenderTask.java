@@ -2,9 +2,10 @@ package com.evbox.everon.ocpp.simulator.station.schedulers;
 
 import com.evbox.everon.ocpp.common.CiString;
 import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
-import com.evbox.everon.ocpp.v20.message.centralserver.Component;
-import com.evbox.everon.ocpp.v20.message.centralserver.Variable;
-import com.evbox.everon.ocpp.v20.message.station.EventDatum;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.EventData;
+import com.evbox.everon.ocpp.v20.message.EventTriggerEnum;
+import com.evbox.everon.ocpp.v20.message.Variable;
 import lombok.AllArgsConstructor;
 
 import java.time.ZoneOffset;
@@ -22,12 +23,12 @@ public class PeriodicEventSenderTask implements Runnable {
         stationMessageSender.sendNotifyEvent(Collections.singletonList(generateEventDatum()));
     }
 
-    private EventDatum generateEventDatum() {
-        return new EventDatum()
+    private EventData generateEventDatum() {
+        return new EventData()
                     .withEventId(ThreadLocalRandom.current().nextInt(100))
                     .withTimestamp(ZonedDateTime.now(ZoneOffset.UTC))
-                    .withTrigger(EventDatum.Trigger.PERIODIC)
-                    .withActualValue(new CiString.CiString1000("123"))
+                    .withTrigger(EventTriggerEnum.PERIODIC)
+                    .withActualValue(new CiString.CiString2500("123"))
                     .withCleared(true)
                     .withComponent(new Component().withName(new CiString.CiString50("component")))
                     .withVariable(new Variable().withName(new CiString.CiString50("variable")));
