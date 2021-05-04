@@ -3,16 +3,19 @@ package com.evbox.everon.ocpp.simulator.station.actions.user;
 import com.evbox.everon.ocpp.common.OptionList;
 import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
 import com.evbox.everon.ocpp.simulator.station.StationStore;
-import com.evbox.everon.ocpp.simulator.station.evse.*;
 import com.evbox.everon.ocpp.simulator.station.component.transactionctrlr.TxStartStopPointVariableValues;
+import com.evbox.everon.ocpp.simulator.station.evse.CableStatus;
+import com.evbox.everon.ocpp.simulator.station.evse.Connector;
+import com.evbox.everon.ocpp.simulator.station.evse.Evse;
+import com.evbox.everon.ocpp.simulator.station.evse.StateManager;
 import com.evbox.everon.ocpp.simulator.station.evse.states.AvailableState;
 import com.evbox.everon.ocpp.simulator.station.evse.states.StoppedState;
 import com.evbox.everon.ocpp.simulator.station.evse.states.WaitingForAuthorizationState;
 import com.evbox.everon.ocpp.simulator.station.subscription.Subscriber;
-import com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest;
-import com.evbox.everon.ocpp.v20.message.station.StatusNotificationResponse;
-import com.evbox.everon.ocpp.v20.message.station.TransactionData;
-import com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.ReasonEnum;
+import com.evbox.everon.ocpp.v20.message.StatusNotificationRequest;
+import com.evbox.everon.ocpp.v20.message.StatusNotificationResponse;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +30,10 @@ import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_EVSE
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UnplugTest {
@@ -79,8 +85,8 @@ public class UnplugTest {
 
         subscriberCaptor.getValue().onResponse(new StatusNotificationRequest(), new StatusNotificationResponse());
 
-        verify(stationMessageSenderMock).sendTransactionEventEnded(anyInt(), anyInt(), any(TransactionEventRequest.TriggerReason.class),
-                nullable(TransactionData.StoppedReason.class), anyLong());
+        verify(stationMessageSenderMock).sendTransactionEventEnded(anyInt(), anyInt(), any(TriggerReasonEnum.class),
+                nullable(ReasonEnum.class), anyLong());
 
     }
 

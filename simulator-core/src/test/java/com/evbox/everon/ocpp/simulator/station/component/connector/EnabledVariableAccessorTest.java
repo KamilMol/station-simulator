@@ -6,11 +6,14 @@ import com.evbox.everon.ocpp.simulator.station.StationStore;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributePath;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributeType;
 import com.evbox.everon.ocpp.simulator.station.evse.Connector;
-import com.evbox.everon.ocpp.v20.message.centralserver.Component;
-import com.evbox.everon.ocpp.v20.message.centralserver.GetVariableResult;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableResult;
-import com.evbox.everon.ocpp.v20.message.centralserver.Variable;
-import com.evbox.everon.ocpp.v20.message.common.Evse;
+import com.evbox.everon.ocpp.v20.message.AttributeEnum;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.EVSE;
+import com.evbox.everon.ocpp.v20.message.GetVariableResult;
+import com.evbox.everon.ocpp.v20.message.GetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.SetVariableResult;
+import com.evbox.everon.ocpp.v20.message.SetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.Variable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -64,12 +67,12 @@ class EnabledVariableAccessorTest {
     @InjectMocks
     EnabledVariableAccessor variableAccessor;
 
-    static Stream<Arguments> setVariableDatumProvider() {
+    static Stream<Arguments> SetVariableDataProvider() {
         return Stream.of(
-                arguments(ACTUAL_ATTRIBUTE, EnabledVariableAccessor.CONNECTOR_STATUS, SetVariableResult.AttributeStatus.REJECTED),
-                arguments(MAX_SET_ATTRIBUTE, EnabledVariableAccessor.CONNECTOR_STATUS, SetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE),
-                arguments(MIN_SET_ATTRIBUTE, EnabledVariableAccessor.CONNECTOR_STATUS, SetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE),
-                arguments(TARGET_ATTRIBUTE, EnabledVariableAccessor.CONNECTOR_STATUS, SetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE)
+                arguments(ACTUAL_ATTRIBUTE, EnabledVariableAccessor.CONNECTOR_STATUS, SetVariableStatusEnum.REJECTED),
+                arguments(MAX_SET_ATTRIBUTE, EnabledVariableAccessor.CONNECTOR_STATUS, SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE),
+                arguments(MIN_SET_ATTRIBUTE, EnabledVariableAccessor.CONNECTOR_STATUS, SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE),
+                arguments(TARGET_ATTRIBUTE, EnabledVariableAccessor.CONNECTOR_STATUS, SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE)
         );
     }
 
@@ -87,32 +90,32 @@ class EnabledVariableAccessorTest {
                 .build();
 
         return Stream.of(
-                arguments(ACTUAL_ATTRIBUTE, GetVariableResult.AttributeStatus.ACCEPTED, EnabledVariableAccessor.CONNECTOR_STATUS),
-                arguments(MAX_SET_ATTRIBUTE, GetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE, null),
-                arguments(MIN_SET_ATTRIBUTE, GetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE, null),
-                arguments(TARGET_ATTRIBUTE, GetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE, null),
-                arguments(actualWithUnknownEvse, GetVariableResult.AttributeStatus.REJECTED, null),
-                arguments(actualWithUnknownConnector, GetVariableResult.AttributeStatus.REJECTED, null),
-                arguments(actualWithUnknownEvseAndConnector, GetVariableResult.AttributeStatus.REJECTED, null)
+                arguments(ACTUAL_ATTRIBUTE, GetVariableStatusEnum.ACCEPTED, EnabledVariableAccessor.CONNECTOR_STATUS),
+                arguments(MAX_SET_ATTRIBUTE, GetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE, null),
+                arguments(MIN_SET_ATTRIBUTE, GetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE, null),
+                arguments(TARGET_ATTRIBUTE, GetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE, null),
+                arguments(actualWithUnknownEvse, GetVariableStatusEnum.REJECTED, null),
+                arguments(actualWithUnknownConnector, GetVariableStatusEnum.REJECTED, null),
+                arguments(actualWithUnknownEvseAndConnector, GetVariableStatusEnum.REJECTED, null)
         );
     }
 
     @ParameterizedTest
-    @MethodSource("setVariableDatumProvider")
-    void shouldValidateSetVariableDatum(AttributePath attributePath, String value, SetVariableResult.AttributeStatus expectedAttributeStatus) {
+    @MethodSource("SetVariableDataProvider")
+    void shouldValidateSetVariableData(AttributePath attributePath, String value, SetVariableStatusEnum expectedAttributeStatus) {
         //when
         SetVariableResult result = variableAccessor.validate(attributePath, new CiString.CiString1000(value));
 
         //then
         assertCiString(result.getComponent().getName()).isEqualTo(attributePath.getComponent().getName());
         assertCiString(result.getVariable().getName()).isEqualTo(attributePath.getVariable().getName());
-        assertThat(result.getAttributeType()).isEqualTo(SetVariableResult.AttributeType.fromValue(attributePath.getAttributeType().getName()));
+        assertThat(result.getAttributeType()).isEqualTo(AttributeEnum.fromValue(attributePath.getAttributeType().getName()));
         assertThat(result.getAttributeStatus()).isEqualTo(expectedAttributeStatus);
     }
 
     @ParameterizedTest
     @MethodSource("getVariableDatumProvider")
-    void shouldGetVariableDatum(AttributePath attributePath, GetVariableResult.AttributeStatus expectedAttributeStatus, String expectedValue) {
+    void shouldGetVariableDatum(AttributePath attributePath, GetVariableStatusEnum expectedAttributeStatus, String expectedValue) {
         //given
         initConnectorMock(EVSE_ID, CONNECTOR_ID);
 
@@ -122,7 +125,7 @@ class EnabledVariableAccessorTest {
         //then
         assertCiString(result.getComponent().getName()).isEqualTo(attributePath.getComponent().getName());
         assertCiString(result.getVariable().getName()).isEqualTo(attributePath.getVariable().getName());
-        assertThat(result.getAttributeType()).isEqualTo(GetVariableResult.AttributeType.fromValue(attributePath.getAttributeType().getName()));
+        assertThat(result.getAttributeType()).isEqualTo(AttributeEnum.fromValue(attributePath.getAttributeType().getName()));
         assertThat(result.getAttributeStatus()).isEqualTo(expectedAttributeStatus);
         assertCiString(result.getAttributeValue()).isEqualTo(expectedValue);
     }
@@ -135,7 +138,7 @@ class EnabledVariableAccessorTest {
     }
 
     static AttributePath.AttributePathBuilder attributePathBuilder(int evseId, int connectorId) {
-        Evse evse = new Evse().withId(evseId).withConnectorId(connectorId);
+        EVSE evse = new EVSE().withId(evseId).withConnectorId(connectorId);
         return AttributePath.builder()
                 .component(new Component().withName(new CiString.CiString50(COMPONENT_NAME))
                         .withEvse(evse)

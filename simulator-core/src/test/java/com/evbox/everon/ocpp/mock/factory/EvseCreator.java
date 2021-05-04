@@ -1,8 +1,12 @@
 package com.evbox.everon.ocpp.mock.factory;
 
 import com.evbox.everon.ocpp.mock.constants.StationConstants;
-import com.evbox.everon.ocpp.simulator.station.evse.*;
-import com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest;
+import com.evbox.everon.ocpp.simulator.station.evse.CableStatus;
+import com.evbox.everon.ocpp.simulator.station.evse.Connector;
+import com.evbox.everon.ocpp.simulator.station.evse.Evse;
+import com.evbox.everon.ocpp.simulator.station.evse.EvseStatus;
+import com.evbox.everon.ocpp.simulator.station.evse.EvseTransaction;
+import com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum;
 
 import java.util.Collections;
 
@@ -13,7 +17,7 @@ public class EvseCreator {
             .withStatus(EvseStatus.AVAILABLE)
             .withConnectorId(StationConstants.DEFAULT_CONNECTOR_ID)
             .withCableStatus(CableStatus.UNPLUGGED)
-            .withConnectorStatus(StatusNotificationRequest.ConnectorStatus.AVAILABLE)
+            .withConnectorStatus(ConnectorStatusEnum.AVAILABLE)
             .withTransaction(new EvseTransaction(StationConstants.DEFAULT_TRANSACTION_ID))
             .build();
 
@@ -28,7 +32,7 @@ public class EvseCreator {
         private int connectorId;
         private CableStatus cableStatus;
         private EvseTransaction evseTransaction;
-        private StatusNotificationRequest.ConnectorStatus connectorStatus;
+        private ConnectorStatusEnum connectorStatus;
 
         public EvseBuilder withId(int id) {
             this.id = id;
@@ -50,7 +54,7 @@ public class EvseCreator {
             return this;
         }
 
-        public EvseBuilder withConnectorStatus(StatusNotificationRequest.ConnectorStatus connectorStatus) {
+        public EvseBuilder withConnectorStatus(ConnectorStatusEnum connectorStatus) {
             this.connectorStatus = connectorStatus;
             return this;
         }

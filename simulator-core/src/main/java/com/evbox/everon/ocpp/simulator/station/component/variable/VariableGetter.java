@@ -1,7 +1,7 @@
 package com.evbox.everon.ocpp.simulator.station.component.variable;
 
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributePath;
-import com.evbox.everon.ocpp.v20.message.centralserver.GetVariableResult;
+import com.evbox.everon.ocpp.v20.message.GetVariableResult;
 
 @FunctionalInterface
 public interface VariableGetter {

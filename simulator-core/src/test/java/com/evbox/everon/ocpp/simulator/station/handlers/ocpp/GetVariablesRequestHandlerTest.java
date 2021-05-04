@@ -5,7 +5,13 @@ import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
 import com.evbox.everon.ocpp.simulator.station.component.StationComponentsHolder;
 import com.evbox.everon.ocpp.simulator.station.component.ocppcommctrlr.HeartbeatIntervalVariableAccessor;
 import com.evbox.everon.ocpp.simulator.station.component.ocppcommctrlr.OCPPCommCtrlrComponent;
-import com.evbox.everon.ocpp.v20.message.centralserver.*;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.GetVariableData;
+import com.evbox.everon.ocpp.v20.message.GetVariableResult;
+import com.evbox.everon.ocpp.v20.message.GetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.GetVariablesRequest;
+import com.evbox.everon.ocpp.v20.message.GetVariablesResponse;
+import com.evbox.everon.ocpp.v20.message.Variable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -20,7 +26,7 @@ import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_HEAR
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_MESSAGE_ID;
 import static com.evbox.everon.ocpp.mock.factory.OcppMessageFactory.createGetVariablesRequest;
 import static com.evbox.everon.ocpp.mock.factory.OcppMessageFactory.createGetVariablesResponse;
-import static com.evbox.everon.ocpp.v20.message.centralserver.GetVariableResult.AttributeStatus.UNKNOWN_COMPONENT;
+import static com.evbox.everon.ocpp.v20.message.GetVariableStatusEnum.UNKNOWN_COMPONENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,7 +67,7 @@ class GetVariablesRequestHandlerTest {
         GetVariablesResponse getVariablesResponse = createGetVariablesResponse()
                 .withComponent(OCPPCommCtrlrComponent.NAME)
                 .withVariable(HeartbeatIntervalVariableAccessor.NAME)
-                .withAttributeStatus(GetVariableResult.AttributeStatus.ACCEPTED)
+                .withAttributeStatus(GetVariableStatusEnum.ACCEPTED)
                 .withAttributeValue(String.valueOf(DEFAULT_HEARTBEAT_INTERVAL))
                 .build();
 
@@ -96,11 +102,11 @@ class GetVariablesRequestHandlerTest {
 
     private void initOCPPCommCtrlComponentMock(String variableName, String variableValue) {
         given(componentsHolderMock.getComponent(new CiString.CiString50(OCPPCommCtrlrComponent.NAME))).willReturn(Optional.of(commCtrlrComponentMock));
-        given(commCtrlrComponentMock.getVariable(any(GetVariableDatum.class))).willAnswer(invocation -> new GetVariableResult()
+        given(commCtrlrComponentMock.getVariable(any(GetVariableData.class))).willAnswer(invocation -> new GetVariableResult()
                 .withComponent(new Component().withName(new CiString.CiString50(OCPPCommCtrlrComponent.NAME)))
                 .withVariable(new Variable().withName(new CiString.CiString50(variableName)))
-                .withAttributeStatus(GetVariableResult.AttributeStatus.ACCEPTED)
-                .withAttributeValue(new CiString.CiString1000(variableValue))
+                .withAttributeStatus(GetVariableStatusEnum.ACCEPTED)
+                .withAttributeValue(new CiString.CiString2500(variableValue))
         );
     }
 }

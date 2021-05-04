@@ -11,11 +11,12 @@ import com.evbox.everon.ocpp.simulator.station.component.variable.VariableGetter
 import com.evbox.everon.ocpp.simulator.station.component.variable.VariableSetter;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributePath;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributeType;
-import com.evbox.everon.ocpp.v20.message.centralserver.Component;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableResult;
-import com.evbox.everon.ocpp.v20.message.centralserver.Variable;
-import com.evbox.everon.ocpp.v20.message.station.ReportDatum;
-import com.evbox.everon.ocpp.v20.message.station.VariableAttribute;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.ReportData;
+import com.evbox.everon.ocpp.v20.message.SetVariableResult;
+import com.evbox.everon.ocpp.v20.message.SetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.Variable;
+import com.evbox.everon.ocpp.v20.message.VariableAttribute;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,10 +29,13 @@ import java.util.concurrent.TimeUnit;
 
 import static com.evbox.everon.ocpp.mock.constants.VariableConstants.BASIC_AUTH_PASSWORD_VARIABLE_NAME;
 import static com.evbox.everon.ocpp.mock.constants.VariableConstants.SECURITY_COMPONENT_NAME;
-import static com.evbox.everon.ocpp.v20.message.station.VariableAttribute.Mutability.WRITE_ONLY;
+import static com.evbox.everon.ocpp.v20.message.MutabilityEnum.WRITE_ONLY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class BasicAuthPasswordVariableAccessorTest {
@@ -87,24 +91,24 @@ public class BasicAuthPasswordVariableAccessorTest {
 
     @Test
     void expectWriteOnlyReportData() {
-        List<ReportDatum> reportData = basicAuthPasswordVariableAccessor.generateReportData(SECURITY_COMPONENT_NAME);
+        List<ReportData> reportData = basicAuthPasswordVariableAccessor.generateReportData(SECURITY_COMPONENT_NAME);
 
-        ReportDatum reportDatum = reportData.get(0);
+        ReportData ReportData = reportData.get(0);
 
-        assertThat(reportDatum.getComponent().getName().toString()).isEqualTo(SECURITY_COMPONENT_NAME);
-        assertThat(reportDatum.getVariable().getName().toString()).isEqualTo(BASIC_AUTH_PASSWORD_VARIABLE_NAME);
+        assertThat(ReportData.getComponent().getName().toString()).isEqualTo(SECURITY_COMPONENT_NAME);
+        assertThat(ReportData.getVariable().getName().toString()).isEqualTo(BASIC_AUTH_PASSWORD_VARIABLE_NAME);
 
-        VariableAttribute variableAttribute = reportDatum.getVariableAttribute().get(0);
+        VariableAttribute variableAttribute = ReportData.getVariableAttribute().get(0);
         assertThat(variableAttribute.getMutability()).isEqualTo(WRITE_ONLY);
     }
 
     @Test
     void expectEmptyPasswordInReportData() {
-        List<ReportDatum> reportData = basicAuthPasswordVariableAccessor.generateReportData(SECURITY_COMPONENT_NAME);
+        List<ReportData> reportData = basicAuthPasswordVariableAccessor.generateReportData(SECURITY_COMPONENT_NAME);
 
-        ReportDatum reportDatum = reportData.get(0);
+        ReportData ReportData = reportData.get(0);
 
-        VariableAttribute variableAttribute = reportDatum.getVariableAttribute().get(0);
+        VariableAttribute variableAttribute = ReportData.getVariableAttribute().get(0);
         assertThat(variableAttribute.getValue().toString()).isEmpty();
     }
 
@@ -123,7 +127,7 @@ public class BasicAuthPasswordVariableAccessorTest {
 
         assertThat(result.getComponent().getName().toString()).isEqualTo(SECURITY_COMPONENT_NAME);
         assertThat(result.getVariable().getName().toString()).isEqualTo(BASIC_AUTH_PASSWORD_VARIABLE_NAME);
-        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableResult.AttributeStatus.ACCEPTED);
+        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableStatusEnum.ACCEPTED);
     }
 
     @Test
@@ -134,7 +138,7 @@ public class BasicAuthPasswordVariableAccessorTest {
 
         SetVariableResult result = setVariableValidator.validate(attributePath(), invalidPassword);
 
-        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableResult.AttributeStatus.INVALID_VALUE);
+        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE);
     }
 
     @Test
@@ -145,7 +149,7 @@ public class BasicAuthPasswordVariableAccessorTest {
 
         SetVariableResult result = setVariableValidator.validate(attributePath(), invalidPassword);
 
-        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableResult.AttributeStatus.INVALID_VALUE);
+        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE);
     }
 
     @Test
@@ -156,7 +160,7 @@ public class BasicAuthPasswordVariableAccessorTest {
 
         SetVariableResult result = setVariableValidator.validate(attributePath(), invalidPassword);
 
-        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableResult.AttributeStatus.INVALID_VALUE);
+        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE);
     }
 
     private AttributePath attributePath() {

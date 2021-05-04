@@ -13,6 +13,10 @@ plugins {
     id 'jacoco'
 }
 
+repositories {
+    mavenLocal()
+}
+
 apply plugin: 'application'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'jacoco'
@@ -36,7 +40,7 @@ lombok {
 }
 
 dependencies {
-    compile 'io.everon:ocpp-payload:2.0.2'
+    compile 'io.everon:ocpp-payload:2.0.1.0'
 
     compile 'info.picocli:picocli:3.9.2'
     compile 'com.squareup.okhttp3:okhttp:3.12.1'

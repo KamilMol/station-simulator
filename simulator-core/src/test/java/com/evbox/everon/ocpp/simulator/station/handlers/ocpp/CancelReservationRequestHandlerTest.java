@@ -1,14 +1,14 @@
 package com.evbox.everon.ocpp.simulator.station.handlers.ocpp;
 
+import com.evbox.everon.ocpp.simulator.additionals.Reservation;
 import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
 import com.evbox.everon.ocpp.simulator.station.StationStore;
 import com.evbox.everon.ocpp.simulator.station.evse.CableStatus;
 import com.evbox.everon.ocpp.simulator.station.evse.Connector;
-import com.evbox.everon.ocpp.v20.message.common.Evse;
-import com.evbox.everon.ocpp.v20.message.station.CancelReservationRequest;
-import com.evbox.everon.ocpp.v20.message.station.CancelReservationResponse;
-import com.evbox.everon.ocpp.v20.message.station.Reservation;
-import com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest;
+import com.evbox.everon.ocpp.v20.message.CancelReservationRequest;
+import com.evbox.everon.ocpp.v20.message.CancelReservationResponse;
+import com.evbox.everon.ocpp.v20.message.CancelReservationStatusEnum;
+import com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,11 +17,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class CancelReservationRequestHandlerTest {
@@ -45,7 +47,7 @@ public class CancelReservationRequestHandlerTest {
 
     @Test
     public void testCancelReservationRejected() {
-        assertCancelReservationStatus(CancelReservationResponse.Status.REJECTED);
+        assertCancelReservationStatus(CancelReservationStatusEnum.REJECTED);
     }
 
     @Test
@@ -54,23 +56,23 @@ public class CancelReservationRequestHandlerTest {
 
         when(stationStore.tryFindReservationById(anyInt())).thenReturn(Optional.of(reservation));
 
-        assertCancelReservationStatus(CancelReservationResponse.Status.ACCEPTED);
+        assertCancelReservationStatus(CancelReservationStatusEnum.ACCEPTED);
     }
 
     @Test
     public void testCancelReservationAcceptedWithConnectorId() {
         Reservation reservation = buildReservation(EVSE_ID, RESERVATION_ID, CONNECTOR_ID);
-        Connector connector = new Connector(CONNECTOR_ID, CableStatus.PLUGGED, StatusNotificationRequest.ConnectorStatus.RESERVED);
+        Connector connector = new Connector(CONNECTOR_ID, CableStatus.PLUGGED, ConnectorStatusEnum.RESERVED);
 
         when(stationStore.tryFindReservationById(anyInt())).thenReturn(Optional.of(reservation));
         when(stationStore.tryFindConnector(anyInt(), anyInt())).thenReturn(Optional.of(connector));
 
-        assertCancelReservationStatus(CancelReservationResponse.Status.ACCEPTED);
-        verify(stationMessageSender).sendStatusNotification(EVSE_ID, CONNECTOR_ID, StatusNotificationRequest.ConnectorStatus.AVAILABLE);
-        assertThat(connector.getConnectorStatus()).isEqualTo(StatusNotificationRequest.ConnectorStatus.AVAILABLE);
+        assertCancelReservationStatus(CancelReservationStatusEnum.ACCEPTED);
+        verify(stationMessageSender).sendStatusNotification(EVSE_ID, CONNECTOR_ID, ConnectorStatusEnum.AVAILABLE);
+        assertThat(connector.getConnectorStatus()).isEqualTo(ConnectorStatusEnum.AVAILABLE);
     }
 
-    private void assertCancelReservationStatus(CancelReservationResponse.Status status) {
+    private void assertCancelReservationStatus(CancelReservationStatusEnum status) {
         handler.handle(CALL_ID, new CancelReservationRequest().withReservationId(RESERVATION_ID));
 
         verify(stationMessageSender).sendCallResult(anyString(), cancelReservationResponseArgumentCaptor.capture());
@@ -78,11 +80,10 @@ public class CancelReservationRequestHandlerTest {
         CancelReservationResponse response = cancelReservationResponseArgumentCaptor.getValue();
 
         assertThat(response.getStatus()).isEqualTo(status);
-        assertThat(response.getAdditionalProperties()).isEmpty();
+//        assertThat(response.getAdditionalProperties()).isEmpty();
     }
 
     private Reservation buildReservation(Integer evseId, Integer reservationId, Integer connectorId) {
-        Evse evse = new Evse().withId(evseId).withConnectorId(connectorId);
-        return new Reservation().withId(reservationId).withEvse(evse);
+        return new Reservation().withId(reservationId).withEvseId(evseId).withConnectorId(connectorId);
     }
 }

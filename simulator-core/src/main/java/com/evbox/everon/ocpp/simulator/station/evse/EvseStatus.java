@@ -1,6 +1,6 @@
 package com.evbox.everon.ocpp.simulator.station.evse;
 
-import com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest;
+import com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum;
 
 import java.util.List;
 
@@ -15,13 +15,13 @@ public enum EvseStatus {
     AVAILABLE("Available") {
         @Override
         public void changeConnectorStatus(List<Connector> connectors) {
-            connectors.forEach(connector -> connector.setConnectorStatus(StatusNotificationRequest.ConnectorStatus.AVAILABLE));
+            connectors.forEach(connector -> connector.setConnectorStatus(ConnectorStatusEnum.AVAILABLE));
         }
     },
     UNAVAILABLE("Unavailable") {
         @Override
         public void changeConnectorStatus(List<Connector> connectors) {
-            connectors.forEach(connector -> connector.setConnectorStatus(StatusNotificationRequest.ConnectorStatus.UNAVAILABLE));
+            connectors.forEach(connector -> connector.setConnectorStatus(ConnectorStatusEnum.UNAVAILABLE));
         }
     };
     private final String value;

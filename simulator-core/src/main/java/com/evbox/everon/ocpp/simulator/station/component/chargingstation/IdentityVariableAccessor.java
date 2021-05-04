@@ -9,9 +9,12 @@ import com.evbox.everon.ocpp.simulator.station.component.variable.VariableGetter
 import com.evbox.everon.ocpp.simulator.station.component.variable.VariableSetter;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributePath;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributeType;
-import com.evbox.everon.ocpp.v20.message.centralserver.GetVariableResult;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableResult;
-import com.evbox.everon.ocpp.v20.message.station.ReportDatum;
+import com.evbox.everon.ocpp.v20.message.AttributeEnum;
+import com.evbox.everon.ocpp.v20.message.GetVariableResult;
+import com.evbox.everon.ocpp.v20.message.GetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.ReportData;
+import com.evbox.everon.ocpp.v20.message.SetVariableResult;
+import com.evbox.everon.ocpp.v20.message.SetVariableStatusEnum;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collections;
@@ -57,7 +60,7 @@ public class IdentityVariableAccessor extends VariableAccessor {
     }
 
     @Override
-    public List<ReportDatum> generateReportData(String componentName) {
+    public List<ReportData> generateReportData(String componentName) {
         return emptyList();
     }
 
@@ -65,15 +68,15 @@ public class IdentityVariableAccessor extends VariableAccessor {
     public boolean isMutable() { return false; }
 
     private SetVariableResult rejectVariable(AttributePath attributePath, CiString.CiString1000 attributeValue) {
-        return RESULT_CREATOR.createResult(attributePath, attributeValue, SetVariableResult.AttributeStatus.REJECTED);
+        return RESULT_CREATOR.createResult(attributePath, attributeValue, SetVariableStatusEnum.REJECTED);
     }
 
     private GetVariableResult getActualValue(AttributePath attributePath) {
         return new GetVariableResult()
                 .withComponent(attributePath.getComponent())
                 .withVariable(attributePath.getVariable())
-                .withAttributeType(GetVariableResult.AttributeType.fromValue(attributePath.getAttributeType().getName()))
-                .withAttributeValue(new CiString.CiString1000(getStation().getConfiguration().getId()))
-                .withAttributeStatus(GetVariableResult.AttributeStatus.ACCEPTED);
+                .withAttributeType(AttributeEnum.fromValue(attributePath.getAttributeType().getName()))
+                .withAttributeValue(new CiString.CiString2500(getStation().getConfiguration().getId()))
+                .withAttributeStatus(GetVariableStatusEnum.ACCEPTED);
     }
 }

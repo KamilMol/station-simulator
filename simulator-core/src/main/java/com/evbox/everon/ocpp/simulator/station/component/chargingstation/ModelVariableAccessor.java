@@ -10,21 +10,33 @@ import com.evbox.everon.ocpp.simulator.station.component.variable.VariableGetter
 import com.evbox.everon.ocpp.simulator.station.component.variable.VariableSetter;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributePath;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributeType;
-import com.evbox.everon.ocpp.v20.message.centralserver.Component;
-import com.evbox.everon.ocpp.v20.message.centralserver.GetVariableResult;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableResult;
-import com.evbox.everon.ocpp.v20.message.centralserver.Variable;
-import com.evbox.everon.ocpp.v20.message.station.ReportDatum;
-import com.evbox.everon.ocpp.v20.message.station.VariableAttribute;
-import com.evbox.everon.ocpp.v20.message.station.VariableCharacteristics;
+//import com.evbox.everon.ocpp.v20.message.centralserver.Component;
+//import com.evbox.everon.ocpp.v20.message.centralserver.GetVariableResult;
+//import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableResult;
+//import com.evbox.everon.ocpp.v20.message.centralserver.Variable;
+//import com.evbox.everon.ocpp.v20.message.station.ReportData;
+//import com.evbox.everon.ocpp.v20.message.station.VariableAttribute;
+//import com.evbox.everon.ocpp.v20.message.station.VariableCharacteristics;
+import com.evbox.everon.ocpp.v20.message.AttributeEnum;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.GetVariableResult;
+import com.evbox.everon.ocpp.v20.message.GetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.MutabilityEnum;
+import com.evbox.everon.ocpp.v20.message.ReportData;
+import com.evbox.everon.ocpp.v20.message.SetVariableResult;
+import com.evbox.everon.ocpp.v20.message.SetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.Variable;
+import com.evbox.everon.ocpp.v20.message.VariableAttribute;
+import com.evbox.everon.ocpp.v20.message.VariableCharacteristics;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.evbox.everon.ocpp.v20.message.station.VariableAttribute.Mutability.READ_ONLY;
-import static com.evbox.everon.ocpp.v20.message.station.VariableCharacteristics.DataType.STRING;
+//import static com.evbox.everon.ocpp.v20.message.station.VariableAttribute.Mutability.READ_ONLY;
+//import static com.evbox.everon.ocpp.v20.message.station.VariableCharacteristics.DataType.STRING;
+import static com.evbox.everon.ocpp.v20.message.DataEnum.STRING;
 import static java.util.Collections.singletonList;
 
 public class ModelVariableAccessor extends VariableAccessor {
@@ -63,42 +75,42 @@ public class ModelVariableAccessor extends VariableAccessor {
     }
 
     @Override
-    public List<ReportDatum> generateReportData(String componentName) {
+    public List<ReportData> generateReportData(String componentName) {
         Component component = new Component()
                 .withName(new CiString.CiString50(componentName));
 
         VariableAttribute variableAttribute = new VariableAttribute()
-                .withValue(new CiString.CiString1000(StationHardwareData.MODEL))
-                .withPersistence(true)
+                .withValue(new CiString.CiString2500(StationHardwareData.MODEL))
+                .withPersistent(true)
                 .withConstant(true)
-                .withMutability(READ_ONLY);
+                .withMutability(MutabilityEnum.READ_ONLY);
 
         VariableCharacteristics variableCharacteristics = new VariableCharacteristics()
                 .withDataType(STRING)
                 .withSupportsMonitoring(false);
 
-        ReportDatum reportDatum = new ReportDatum()
+        ReportData ReportData = new ReportData()
                 .withComponent(component)
                 .withVariable(new Variable().withName(new CiString.CiString50(NAME)))
                 .withVariableCharacteristics(variableCharacteristics)
                 .withVariableAttribute(singletonList(variableAttribute));
 
-        return singletonList(reportDatum);
+        return singletonList(ReportData);
     }
 
     @Override
     public boolean isMutable() { return false; }
 
     private SetVariableResult rejectVariable(AttributePath attributePath, CiString.CiString1000 attributeValue) {
-        return RESULT_CREATOR.createResult(attributePath, attributeValue, SetVariableResult.AttributeStatus.REJECTED);
+        return RESULT_CREATOR.createResult(attributePath, attributeValue, SetVariableStatusEnum.REJECTED);
     }
 
     private GetVariableResult getActualValue(AttributePath attributePath) {
         return new GetVariableResult()
                 .withComponent(attributePath.getComponent())
                 .withVariable(attributePath.getVariable())
-                .withAttributeType(GetVariableResult.AttributeType.fromValue(attributePath.getAttributeType().getName()))
-                .withAttributeValue(new CiString.CiString1000(StationHardwareData.MODEL))
-                .withAttributeStatus(GetVariableResult.AttributeStatus.ACCEPTED);
+                .withAttributeType(AttributeEnum.fromValue(attributePath.getAttributeType().getName()))
+                .withAttributeValue(new CiString.CiString2500(StationHardwareData.MODEL))
+                .withAttributeStatus(GetVariableStatusEnum.ACCEPTED);
     }
 }

@@ -10,12 +10,24 @@ import com.evbox.everon.ocpp.simulator.message.Call;
 import com.evbox.everon.ocpp.simulator.station.actions.user.Plug;
 import com.evbox.everon.ocpp.simulator.station.actions.user.Unplug;
 import com.evbox.everon.ocpp.simulator.station.evse.EvseStatus;
-import com.evbox.everon.ocpp.v20.message.station.*;
+import com.evbox.everon.ocpp.v20.message.ChargingStateEnum;
+import com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum;
+import com.evbox.everon.ocpp.v20.message.ReasonEnum;
+import com.evbox.everon.ocpp.v20.message.RequestStartStopStatusEnum;
+import com.evbox.everon.ocpp.v20.message.RequestStopTransactionRequest;
+import com.evbox.everon.ocpp.v20.message.RequestStopTransactionResponse;
+import com.evbox.everon.ocpp.v20.message.TransactionEventEnum;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
 import org.junit.jupiter.api.Test;
 
-import static com.evbox.everon.ocpp.mock.constants.StationConstants.*;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_CALL_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_CONNECTOR_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_EVSE_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_TOKEN_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_TRANSACTION_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.STATION_ID;
 import static com.evbox.everon.ocpp.mock.expect.ExpectedCount.times;
-import static com.evbox.everon.ocpp.v20.message.common.IdToken.Type.ISO_14443;
+import static com.evbox.everon.ocpp.v20.message.IdTokenEnum.ISO_14443;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -29,15 +41,15 @@ public class RemoteStopTransactionIt extends StationSimulatorSetUp {
                 .thenReturn(Authorize.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(TransactionEventRequest.EventType.UPDATED, TransactionData.ChargingState.EV_DETECTED, DEFAULT_TRANSACTION_ID, TransactionEventRequest.TriggerReason.REMOTE_STOP))
+                .when(TransactionEvent.request(TransactionEventEnum.UPDATED, ChargingStateEnum.EV_CONNECTED, DEFAULT_TRANSACTION_ID, TriggerReasonEnum.REMOTE_STOP))
                 .thenReturn(TransactionEvent.response());
 
         ocppMockServer
-                .when(StatusNotification.request(StatusNotificationRequest.ConnectorStatus.AVAILABLE), times(2))
+                .when(StatusNotification.request(ConnectorStatusEnum.AVAILABLE), times(2))
                 .thenReturn(StatusNotification.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(TransactionEventRequest.EventType.ENDED, TransactionData.StoppedReason.REMOTE))
+                .when(TransactionEvent.request(TransactionEventEnum.ENDED, ReasonEnum.REMOTE))
                 .thenReturn(TransactionEvent.response());
 
         stationSimulatorRunner.run();
@@ -72,7 +84,7 @@ public class RemoteStopTransactionIt extends StationSimulatorSetUp {
                 .thenReturn(Authorize.response());
 
         ocppMockServer
-                .when(StatusNotification.request(StatusNotificationRequest.ConnectorStatus.AVAILABLE))
+                .when(StatusNotification.request(ConnectorStatusEnum.AVAILABLE))
                 .thenReturn(Authorize.response());
 
         stationSimulatorRunner.run();
@@ -88,7 +100,7 @@ public class RemoteStopTransactionIt extends StationSimulatorSetUp {
 
         await().untilAsserted(() -> {
 
-            assertThat(response.getStatus()).isEqualTo(RequestStopTransactionResponse.Status.REJECTED);
+            assertThat(response.getStatus()).isEqualTo(RequestStartStopStatusEnum.REJECTED);
             assertThat(stationSimulatorRunner.getStation(STATION_ID).getStateView().isCharging(DEFAULT_EVSE_ID)).isTrue();
             ocppMockServer.verify();
         });

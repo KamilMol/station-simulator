@@ -7,15 +7,19 @@ import com.evbox.everon.ocpp.mock.csms.exchange.TransactionEvent;
 import com.evbox.everon.ocpp.simulator.station.actions.user.Plug;
 import org.junit.jupiter.api.Test;
 
-import static com.evbox.everon.ocpp.mock.constants.StationConstants.*;
-import static com.evbox.everon.ocpp.v20.message.common.IdToken.Type.ISO_14443;
-import static com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest.ConnectorStatus.OCCUPIED;
-import static com.evbox.everon.ocpp.v20.message.station.TransactionData.ChargingState.CHARGING;
-import static com.evbox.everon.ocpp.v20.message.station.TransactionData.ChargingState.EV_DETECTED;
-import static com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest.EventType.STARTED;
-import static com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest.EventType.UPDATED;
-import static com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest.TriggerReason.CABLE_PLUGGED_IN;
-import static com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest.TriggerReason.CHARGING_STATE_CHANGED;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_CONNECTOR_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_EVSE_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_TOKEN_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_TRANSACTION_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.STATION_ID;
+import static com.evbox.everon.ocpp.v20.message.ChargingStateEnum.CHARGING;
+import static com.evbox.everon.ocpp.v20.message.ChargingStateEnum.EV_CONNECTED;
+import static com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum.OCCUPIED;
+import static com.evbox.everon.ocpp.v20.message.IdTokenEnum.ISO_14443;
+import static com.evbox.everon.ocpp.v20.message.TransactionEventEnum.STARTED;
+import static com.evbox.everon.ocpp.v20.message.TransactionEventEnum.UPDATED;
+import static com.evbox.everon.ocpp.v20.message.TriggerReasonEnum.CABLE_PLUGGED_IN;
+import static com.evbox.everon.ocpp.v20.message.TriggerReasonEnum.CHARGING_STATE_CHANGED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -38,7 +42,7 @@ public class EvDriverAuthorizationUsingRfidIt extends StationSimulatorSetUp {
                 .thenReturn(TransactionEvent.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(UPDATED, seqNo + 1, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID, DEFAULT_TOKEN_ID, EV_DETECTED, CABLE_PLUGGED_IN))
+                .when(TransactionEvent.request(UPDATED, seqNo + 1, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID, DEFAULT_TOKEN_ID, EV_CONNECTED, CABLE_PLUGGED_IN))
                 .thenReturn(TransactionEvent.response());
 
         ocppMockServer

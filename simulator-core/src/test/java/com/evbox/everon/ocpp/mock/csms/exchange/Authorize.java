@@ -2,10 +2,11 @@ package com.evbox.everon.ocpp.mock.csms.exchange;
 
 import com.evbox.everon.ocpp.mock.factory.JsonMessageTypeFactory;
 import com.evbox.everon.ocpp.simulator.message.Call;
-import com.evbox.everon.ocpp.v20.message.common.IdToken;
-import com.evbox.everon.ocpp.v20.message.station.AuthorizeRequest;
-import com.evbox.everon.ocpp.v20.message.station.AuthorizeResponse;
-import com.evbox.everon.ocpp.v20.message.station.IdTokenInfo;
+import com.evbox.everon.ocpp.v20.message.AuthorizationStatusEnum;
+import com.evbox.everon.ocpp.v20.message.AuthorizeRequest;
+import com.evbox.everon.ocpp.v20.message.AuthorizeResponse;
+import com.evbox.everon.ocpp.v20.message.IdTokenEnum;
+import com.evbox.everon.ocpp.v20.message.IdTokenInfo;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -22,7 +23,7 @@ public class Authorize {
      * @param tokenId auth token id
      * @return checks whether an incoming request is AuthorizeRequest or not.
      */
-    public static Predicate<Call> request(String tokenId, IdToken.Type type) {
+    public static Predicate<Call> request(String tokenId, IdTokenEnum type) {
         return request -> equalsType(request, AUTHORIZE) && equalsTokenId(request, tokenId) && equalsTokenType(request, type);
     }
 
@@ -34,7 +35,7 @@ public class Authorize {
     public static Function<Call, String> response() {
         return request -> JsonMessageTypeFactory.createCallResult()
                 .withMessageId(request.getMessageId())
-                .withPayload(new AuthorizeResponse().withIdTokenInfo(new IdTokenInfo().withStatus(IdTokenInfo.Status.ACCEPTED)))
+                .withPayload(new AuthorizeResponse().withIdTokenInfo(new IdTokenInfo().withStatus(AuthorizationStatusEnum.ACCEPTED)))
                 .toJson();
     }
 
@@ -42,7 +43,7 @@ public class Authorize {
         return ((AuthorizeRequest) request.getPayload()).getIdToken().getIdToken().toString().equals(tokenId);
     }
 
-    private static boolean equalsTokenType(Call request, IdToken.Type type) {
+    private static boolean equalsTokenType(Call request, IdTokenEnum type) {
         return ((AuthorizeRequest) request.getPayload()).getIdToken().getType() == type;
     }
 }

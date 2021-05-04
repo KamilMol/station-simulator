@@ -7,12 +7,16 @@ import com.evbox.everon.ocpp.simulator.StationSimulatorRunner;
 import com.evbox.everon.ocpp.simulator.configuration.SimulatorConfiguration;
 import org.junit.jupiter.api.Test;
 
-import static com.evbox.everon.ocpp.mock.constants.StationConstants.*;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.ADDITIONAL_STATION_ID;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_EVSE_CONNECTORS;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_EVSE_COUNT;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.OCPP_SERVER_URL;
+import static com.evbox.everon.ocpp.mock.constants.StationConstants.STATION_ID;
 import static com.evbox.everon.ocpp.mock.expect.ExpectedCount.once;
 import static com.evbox.everon.ocpp.mock.expect.ExpectedCount.times;
 import static com.evbox.everon.ocpp.mock.factory.SimulatorConfigCreator.createSimulatorConfiguration;
 import static com.evbox.everon.ocpp.mock.factory.SimulatorConfigCreator.createStationConfiguration;
-import static com.evbox.everon.ocpp.v20.message.station.StatusNotificationRequest.ConnectorStatus.AVAILABLE;
+import static com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum.AVAILABLE;
 import static org.awaitility.Awaitility.await;
 
 public class ColdBootChargingStationIt extends StationSimulatorSetUp {

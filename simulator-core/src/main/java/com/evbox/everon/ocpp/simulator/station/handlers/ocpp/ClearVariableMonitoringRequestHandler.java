@@ -2,9 +2,10 @@ package com.evbox.everon.ocpp.simulator.station.handlers.ocpp;
 
 import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
 import com.evbox.everon.ocpp.simulator.station.component.StationComponentsHolder;
-import com.evbox.everon.ocpp.v20.message.station.ClearMonitoringResult;
-import com.evbox.everon.ocpp.v20.message.station.ClearVariableMonitoringRequest;
-import com.evbox.everon.ocpp.v20.message.station.ClearVariableMonitoringResponse;
+import com.evbox.everon.ocpp.v20.message.ClearMonitoringResult;
+import com.evbox.everon.ocpp.v20.message.ClearMonitoringStatusEnum;
+import com.evbox.everon.ocpp.v20.message.ClearVariableMonitoringRequest;
+import com.evbox.everon.ocpp.v20.message.ClearVariableMonitoringResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -38,11 +39,11 @@ public class ClearVariableMonitoringRequestHandler implements OcppRequestHandler
         stationMessageSender.sendCallResult(callId, new ClearVariableMonitoringResponse().withClearMonitoringResult(results));
     }
 
-    private ClearMonitoringResult.Status tryClearMonitor(int id) {
+    private ClearMonitoringStatusEnum tryClearMonitor(int id) {
         if (stationComponentsHolder.clearMonitor(id)) {
-            return ClearMonitoringResult.Status.ACCEPTED;
+            return ClearMonitoringStatusEnum.ACCEPTED;
         }
-        return ClearMonitoringResult.Status.NOT_FOUND;
+        return ClearMonitoringStatusEnum.NOT_FOUND;
     }
 
 }

@@ -101,6 +101,12 @@ public abstract class CiString implements Comparable<CiString> {
         }
     }
 
+    public static class CiString40 extends CiString {
+        public CiString40(String string) {
+            super(string, 40);
+        }
+    }
+
     public static class CiString50 extends CiString {
         public CiString50(String string) {
             super(string, 50);
@@ -157,6 +163,19 @@ public abstract class CiString implements Comparable<CiString> {
         }
     }
 
+    public static class CiString5600 extends CiString {
+        public CiString5600(String string) {
+            super(string, 5600);
+        }
+    }
+
+    public static class CiString10000 extends CiString {
+        public CiString10000(String string) {
+            super(string, 5600);
+        }
+    }
+
+
     public static class IdToken extends CiString20 {
         public IdToken(String string) {
             super(string);
@@ -173,6 +192,8 @@ public abstract class CiString implements Comparable<CiString> {
                 return CiString25.class;
             case 36:
                 return CiString36.class;
+            case 40:
+                return CiString40.class;
             case 50:
                 return CiString50.class;
             case 128:
@@ -187,6 +208,12 @@ public abstract class CiString implements Comparable<CiString> {
                 return CiString1000.class;
             case 2500:
                 return CiString2500.class;
+            case 5500:
+                return CiString5500.class;
+            case 5600:
+                return CiString5600.class;
+            case 10000:
+                return CiString10000.class;
             default:
                 throw new IllegalArgumentException("OCPP specification does not allow CiString with maximum length " + maxLength);
         }

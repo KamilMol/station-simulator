@@ -7,14 +7,15 @@ import com.evbox.everon.ocpp.simulator.station.evse.CableStatus;
 import com.evbox.everon.ocpp.simulator.station.evse.Connector;
 import com.evbox.everon.ocpp.simulator.station.evse.Evse;
 import com.evbox.everon.ocpp.simulator.station.support.TransactionIdGenerator;
-import com.evbox.everon.ocpp.v20.message.station.IdTokenInfo;
-import com.evbox.everon.ocpp.v20.message.station.TransactionData;
-import com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.AuthorizationStatusEnum;
+import com.evbox.everon.ocpp.v20.message.ChargingStateEnum;
+import com.evbox.everon.ocpp.v20.message.ReasonEnum;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CompletableFuture;
 
-import static com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest.TriggerReason.*;
+import static com.evbox.everon.ocpp.v20.message.TriggerReasonEnum.CABLE_PLUGGED_IN;
 import static java.util.Collections.singletonList;
 
 /**
@@ -51,15 +52,15 @@ public class WaitingForPlugState extends AbstractEvseState {
                 String transactionId = TransactionIdGenerator.getInstance().getAndIncrement();
                 evse.createTransaction(transactionId);
 
-                stationMessageSender.sendTransactionEventStart(evseId, connectorId, CABLE_PLUGGED_IN, TransactionData.ChargingState.EV_DETECTED);
+                stationMessageSender.sendTransactionEventStart(evseId, connectorId, CABLE_PLUGGED_IN, ChargingStateEnum.EV_CONNECTED);
             } else {
-                stationMessageSender.sendTransactionEventUpdate(evseId, connectorId, TransactionEventRequest.TriggerReason.CABLE_PLUGGED_IN, tokenId, TransactionData.ChargingState.EV_DETECTED);
+                stationMessageSender.sendTransactionEventUpdate(evseId, connectorId, TriggerReasonEnum.CABLE_PLUGGED_IN, tokenId, ChargingStateEnum.EV_CONNECTED);
             }
 
             startCharging(evse);
 
-            stationMessageSender.sendTransactionEventUpdate(evseId, connectorId, TransactionEventRequest.TriggerReason.CHARGING_STATE_CHANGED, tokenId,
-                    TransactionData.ChargingState.CHARGING);
+            stationMessageSender.sendTransactionEventUpdate(evseId, connectorId, TriggerReasonEnum.CHARGING_STATE_CHANGED, tokenId,
+                    ChargingStateEnum.CHARGING);
             future.complete(UserMessageResult.SUCCESSFUL);
         });
 
@@ -76,14 +77,14 @@ public class WaitingForPlugState extends AbstractEvseState {
 
         CompletableFuture<UserMessageResult> future = new CompletableFuture<>();
         stationMessageSender.sendAuthorizeAndSubscribe(tokenId, singletonList(evseId), (request, response) -> {
-            if (response.getIdTokenInfo().getStatus() == IdTokenInfo.Status.ACCEPTED) {
+            if (response.getIdTokenInfo().getStatus() == AuthorizationStatusEnum.ACCEPTED) {
                 Evse evse = stationStore.findEvse(evseId);
 
                 if (evse.hasOngoingTransaction()) {
                     evse.stopTransaction();
                     evse.clearToken();
 
-                    stationMessageSender.sendTransactionEventEnded(evse.getId(), null, TransactionEventRequest.TriggerReason.EV_DEPARTED, TransactionData.StoppedReason.DE_AUTHORIZED, evse.getWattConsumedLastSession());
+                    stationMessageSender.sendTransactionEventEnded(evse.getId(), null, TriggerReasonEnum.EV_DEPARTED, ReasonEnum.DE_AUTHORIZED, evse.getWattConsumedLastSession());
                 }
                 stateManager.setStateForEvse(evseId, new AvailableState());
                 future.complete(UserMessageResult.SUCCESSFUL);

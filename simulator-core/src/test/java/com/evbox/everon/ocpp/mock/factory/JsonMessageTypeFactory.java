@@ -29,6 +29,10 @@ public class JsonMessageTypeFactory {
         return new CallResult();
     }
 
+    public static CallResult2 createCallResult2() {
+        return new CallResult2();
+    }
+
     public static CallError createCallError() {
         return new CallError();
     }
@@ -117,6 +121,48 @@ public class JsonMessageTypeFactory {
 
             }
             return String.format("[3, \"%s\", {\"currentTime\":\"%s\", \"interval\":%s, \"status\":\"%s\"}]", messageId, currentTime, intervalInSeconds, status);
+        }
+
+    }
+
+    public static class CallResult2 {
+
+        private String messageId;
+        private String currentTime;
+        private Object payload;
+
+        public CallResult2 withMessageId(String messageId) {
+            this.messageId = messageId;
+            return this;
+        }
+
+        public CallResult2 withCurrentTime(String currentTime) {
+            this.currentTime = currentTime;
+            return this;
+        }
+
+        public CallResult2 withPayload(Object payload) {
+            this.payload = payload;
+            return this;
+        }
+
+        public String toJson() {
+
+            if (nonNull(payload)) {
+
+                if (StringUtils.isEmpty(payload.toString())) {
+                    return String.format("[3,\"%s\",{}]", messageId);
+                }
+
+                try {
+                    String payloadJson = JSON_OBJECT_MAPPER.writeValueAsString(payload);
+                    return String.format("[3,\"%s\",%s]", messageId, payloadJson);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+            return String.format("[3, \"%s\", {\"currentTime\":\"%s\"}]", messageId, currentTime);
         }
 
     }

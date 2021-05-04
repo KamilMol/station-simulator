@@ -4,14 +4,16 @@ import com.evbox.everon.ocpp.mock.StationSimulatorSetUp;
 import com.evbox.everon.ocpp.mock.csms.exchange.NotifyReport;
 import com.evbox.everon.ocpp.simulator.message.ActionType;
 import com.evbox.everon.ocpp.simulator.message.Call;
-import com.evbox.everon.ocpp.v20.message.station.GetBaseReportRequest;
-import com.evbox.everon.ocpp.v20.message.station.GetBaseReportResponse;
+import com.evbox.everon.ocpp.v20.message.GenericDeviceModelStatusEnum;
+import com.evbox.everon.ocpp.v20.message.GetBaseReportRequest;
+import com.evbox.everon.ocpp.v20.message.GetBaseReportResponse;
 import org.junit.jupiter.api.Test;
 
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_CALL_ID;
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.STATION_ID;
-import static com.evbox.everon.ocpp.v20.message.station.GetBaseReportRequest.ReportBase.*;
-import static com.evbox.everon.ocpp.v20.message.station.GetBaseReportResponse.Status.ACCEPTED;
+import static com.evbox.everon.ocpp.v20.message.ReportBaseEnum.CONFIGURATION_INVENTORY;
+import static com.evbox.everon.ocpp.v20.message.ReportBaseEnum.FULL_INVENTORY;
+import static com.evbox.everon.ocpp.v20.message.ReportBaseEnum.SUMMARY_INVENTORY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -32,7 +34,7 @@ public class GetAbstractBaseReportIt extends StationSimulatorSetUp {
                 ocppServerClient.findStationSender(STATION_ID).sendMessage(call.toJson(), GetBaseReportResponse.class);
 
         await().untilAsserted(() -> {
-            assertThat(response.getStatus()).isEqualTo(ACCEPTED);
+            assertThat(response.getStatus()).isEqualTo(GenericDeviceModelStatusEnum.ACCEPTED);
             ocppMockServer.verify();
         });
     }
@@ -50,7 +52,7 @@ public class GetAbstractBaseReportIt extends StationSimulatorSetUp {
                 ocppServerClient.findStationSender(STATION_ID).sendMessage(call.toJson(), GetBaseReportResponse.class);
 
         await().untilAsserted(() -> {
-            assertThat(response.getStatus()).isEqualTo(ACCEPTED);
+            assertThat(response.getStatus()).isEqualTo(GenericDeviceModelStatusEnum.ACCEPTED);
             ocppMockServer.verify();
         });
     }

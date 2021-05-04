@@ -4,7 +4,14 @@ import com.evbox.everon.ocpp.common.CiString;
 import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
 import com.evbox.everon.ocpp.simulator.station.component.StationComponent;
 import com.evbox.everon.ocpp.simulator.station.component.StationComponentsHolder;
-import com.evbox.everon.ocpp.v20.message.centralserver.*;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.ComponentVariable;
+import com.evbox.everon.ocpp.v20.message.SetMonitoringData;
+import com.evbox.everon.ocpp.v20.message.SetMonitoringResult;
+import com.evbox.everon.ocpp.v20.message.SetMonitoringStatusEnum;
+import com.evbox.everon.ocpp.v20.message.SetVariableMonitoringRequest;
+import com.evbox.everon.ocpp.v20.message.SetVariableMonitoringResponse;
+import com.evbox.everon.ocpp.v20.message.Variable;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -36,7 +43,7 @@ public class SetVariableMonitoringRequestHandler implements OcppRequestHandler<S
     public void handle(String callId, SetVariableMonitoringRequest request) {
         List<SetMonitoringResult> results = new ArrayList<>();
 
-        for (SetMonitoringDatum data : request.getSetMonitoringData()) {
+        for (SetMonitoringData data : request.getSetMonitoringData()) {
             SetMonitoringResult monitoringResult = buildResponse(data);
 
             String componentName = data.getComponent().getName().toString();
@@ -45,12 +52,12 @@ public class SetVariableMonitoringRequestHandler implements OcppRequestHandler<S
             component.ifPresent(c -> {
                 String variableName = data.getVariable().getName().toString();
                 if (!c.getVariableNames().contains(variableName)) {
-                    monitoringResult.setStatus(SetMonitoringResult.Status.UNKNOWN_VARIABLE);
+                    monitoringResult.setStatus(SetMonitoringStatusEnum.UNKNOWN_VARIABLE);
                 } else {
                     int id = Optional.ofNullable(data.getId()).orElseGet(() -> ThreadLocalRandom.current().nextInt());
                     stationComponentsHolder.monitorComponent(id, buildComponentVariable(componentName, variableName), data);
                     monitoringResult.setId(id);
-                    monitoringResult.setStatus(SetMonitoringResult.Status.ACCEPTED);
+                    monitoringResult.setStatus(SetMonitoringStatusEnum.ACCEPTED);
                 }
             });
 
@@ -65,10 +72,10 @@ public class SetVariableMonitoringRequestHandler implements OcppRequestHandler<S
                                         .withVariable(new Variable().withName(new CiString.CiString50(variableName)));
     }
 
-    private SetMonitoringResult buildResponse(SetMonitoringDatum request) {
+    private SetMonitoringResult buildResponse(SetMonitoringData request) {
         return new SetMonitoringResult()
-                .withStatus(SetMonitoringResult.Status.UNKNOWN_COMPONENT)
-                .withType(SetMonitoringResult.Type.fromValue(request.getType().value()))
+                .withStatus(SetMonitoringStatusEnum.UNKNOWN_COMPONENT)
+                .withType(request.getType())
                 .withSeverity(request.getSeverity())
                 .withComponent(request.getComponent())
                 .withVariable(request.getVariable());

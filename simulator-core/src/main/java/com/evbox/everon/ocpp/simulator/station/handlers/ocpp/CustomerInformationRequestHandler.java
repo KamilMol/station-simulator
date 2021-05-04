@@ -3,11 +3,12 @@ package com.evbox.everon.ocpp.simulator.station.handlers.ocpp;
 import com.evbox.everon.ocpp.common.CiString;
 import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
 import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.support.CustomerDataUtils;
-import com.evbox.everon.ocpp.v20.message.common.IdToken;
-import com.evbox.everon.ocpp.v20.message.station.CustomerCertificate;
-import com.evbox.everon.ocpp.v20.message.station.CustomerInformationRequest;
-import com.evbox.everon.ocpp.v20.message.station.CustomerInformationResponse;
-import com.evbox.everon.ocpp.v20.message.station.NotifyCustomerInformationRequest;
+import com.evbox.everon.ocpp.v20.message.CertificateHashData;
+import com.evbox.everon.ocpp.v20.message.CustomerInformationRequest;
+import com.evbox.everon.ocpp.v20.message.CustomerInformationResponse;
+import com.evbox.everon.ocpp.v20.message.CustomerInformationStatusEnum;
+import com.evbox.everon.ocpp.v20.message.IdToken;
+import com.evbox.everon.ocpp.v20.message.NotifyCustomerInformationRequest;
 import lombok.RequiredArgsConstructor;
 
 import java.time.ZoneOffset;
@@ -17,7 +18,9 @@ import java.util.Optional;
 
 import static com.evbox.everon.ocpp.common.CiString.CiString512;
 import static com.evbox.everon.ocpp.common.CiString.CiString64;
-import static com.evbox.everon.ocpp.simulator.station.handlers.ocpp.support.CustomerDataUtils.*;
+import static com.evbox.everon.ocpp.simulator.station.handlers.ocpp.support.CustomerDataUtils.getCustomerInformation;
+import static com.evbox.everon.ocpp.simulator.station.handlers.ocpp.support.CustomerDataUtils.hasCustomerData;
+import static com.evbox.everon.ocpp.simulator.station.handlers.ocpp.support.CustomerDataUtils.initializeCustomerData;
 
 @RequiredArgsConstructor
 public class CustomerInformationRequestHandler implements OcppRequestHandler<CustomerInformationRequest> {
@@ -36,17 +39,17 @@ public class CustomerInformationRequestHandler implements OcppRequestHandler<Cus
     public void handle(String callId, CustomerInformationRequest request) {
         final var customerIdentifier = Optional.ofNullable(request.getCustomerIdentifier()).map(CiString64::toString).orElse("");
         final var idToken = Optional.ofNullable(request.getIdToken()).map(IdToken::getIdToken).map(CiString::toString).orElse("");
-        final var certificateSerialNumber = Optional.ofNullable(request.getCustomerCertificate()).map(CustomerCertificate::getSerialNumber).map(CiString::toString).orElse("");
+        final var certificateSerialNumber = Optional.ofNullable(request.getCustomerCertificate()).map(CertificateHashData::getSerialNumber).map(CiString::toString).orElse("");
 
         verifyAndSendCustomerDataReport(callId, customerIdentifier, idToken, certificateSerialNumber, request.getRequestId(), request.getClear(), request.getReport());
     }
 
     private void verifyAndSendCustomerDataReport(final String callId, final String customerIdentifier, final String idToken, final String certificateSerialNumber, final Integer requestId, final Boolean clear, final Boolean report) {
         if (!report && !clear) {
-            sendCustomerInformationResponse(callId, CustomerInformationResponse.Status.REJECTED);
+            sendCustomerInformationResponse(callId, CustomerInformationStatusEnum.REJECTED);
         } else if (hasCustomerData(customerIdentifier, idToken, certificateSerialNumber)) {
             if (report) {
-                sendCustomerInformationResponse(callId, CustomerInformationResponse.Status.ACCEPTED);
+                sendCustomerInformationResponse(callId, CustomerInformationStatusEnum.ACCEPTED);
                 sendCustomerDataReport(customerIdentifier, idToken, certificateSerialNumber, requestId);
             }
             if (clear) {
@@ -58,18 +61,18 @@ public class CustomerInformationRequestHandler implements OcppRequestHandler<Cus
     }
 
     private void sendCustomerInfoNotFoundRequest(final String callId, final Integer requestId) {
-        sendCustomerInformationResponse(callId, CustomerInformationResponse.Status.REJECTED);
+        sendCustomerInformationResponse(callId, CustomerInformationStatusEnum.REJECTED);
         var baseRequest = createNotifyCustomerInformationBaseRequest(requestId);
         stationMessageSender.sendNotifyCustomerInformationRequest(baseRequest.withData(NO_CUSTOMER_DATA_FOUND));
     }
 
     private void clearCustomerData(final String customerIdentifier, final String idToken, final String certificateSerialNumber, final String callId, final Integer requestId) {
         CustomerDataUtils.clearCustomerData(customerIdentifier, idToken, certificateSerialNumber);
-        sendCustomerInformationResponse(callId, CustomerInformationResponse.Status.ACCEPTED);
+        sendCustomerInformationResponse(callId, CustomerInformationStatusEnum.ACCEPTED);
         stationMessageSender.sendNotifyCustomerInformationRequest(createNotifyCustomerInformationBaseRequest(requestId).withData(CUSTOMER_DATA_CLEARED));
     }
 
-    private void sendCustomerInformationResponse(final String callId, final CustomerInformationResponse.Status status) {
+    private void sendCustomerInformationResponse(final String callId, final CustomerInformationStatusEnum status) {
         stationMessageSender.sendCallResult(callId, new CustomerInformationResponse().withStatus(status));
     }
 

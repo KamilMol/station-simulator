@@ -5,11 +5,23 @@ import com.evbox.everon.ocpp.simulator.station.component.variable.SetVariableNot
 import com.evbox.everon.ocpp.simulator.station.component.variable.SetVariableValidationResult;
 import com.evbox.everon.ocpp.simulator.station.component.variable.VariableAccessor;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributePath;
-import com.evbox.everon.ocpp.v20.message.centralserver.*;
-import com.evbox.everon.ocpp.v20.message.station.ReportDatum;
+import com.evbox.everon.ocpp.v20.message.AttributeEnum;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.GetVariableData;
+import com.evbox.everon.ocpp.v20.message.GetVariableResult;
+import com.evbox.everon.ocpp.v20.message.GetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.ReportData;
+import com.evbox.everon.ocpp.v20.message.SetVariableData;
+import com.evbox.everon.ocpp.v20.message.SetVariableResult;
+import com.evbox.everon.ocpp.v20.message.SetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.Variable;
 import com.google.common.collect.ImmutableMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -22,7 +34,7 @@ import static java.util.stream.Collectors.toMap;
  */
 public abstract class StationComponent {
 
-    private static final GetVariableResult UNKNOWN_VARIABLE = new GetVariableResult().withAttributeStatus(GetVariableResult.AttributeStatus.UNKNOWN_VARIABLE);
+    private static final GetVariableResult UNKNOWN_VARIABLE = new GetVariableResult().withAttributeStatus(GetVariableStatusEnum.UNKNOWN_VARIABLE);
 
     /**
      * Map of variable names and accessors for each of them.
@@ -37,15 +49,15 @@ public abstract class StationComponent {
     public abstract String getComponentName();
 
     /**
-     * Validates {@link GetVariableDatum} for proper variable path (variable name, instance, attributeType, evseId, connectorId) and read access.
+     * Validates {@link GetVariableData} for proper variable path (variable name, instance, attributeType, evseId, connectorId) and read access.
      * Retrieves variable from station.
      *
      * @param getVariableDatum contains necessary data to generate variable from station
      * @return result of getting variable
      */
-    public GetVariableResult getVariable(GetVariableDatum getVariableDatum) {
+    public GetVariableResult getVariable(GetVariableData getVariableDatum) {
         Component component = getVariableDatum.getComponent();
-        GetVariableDatum.AttributeType attributeType = getVariableDatum.getAttributeType();
+        AttributeEnum attributeType = getVariableDatum.getAttributeType();
         Variable variable = getVariableDatum.getVariable();
 
         VariableAccessor accessor = variableAccessors.get(variable.getName());
@@ -69,39 +81,39 @@ public abstract class StationComponent {
     /**
      * Updates variable.
      *
-     * @param setVariableDatum contains path to variable and new value for it
-     * @throws SetVariableNotSupportedException if variable specified in {@link SetVariableDatum} is not supported by component
+     * @param SetVariableData contains path to variable and new value for it
+     * @throws SetVariableNotSupportedException if variable specified in {@link SetVariableData} is not supported by component
      */
-    public void setVariable(SetVariableDatum setVariableDatum) {
-        Component component = setVariableDatum.getComponent();
-        Variable variable = setVariableDatum.getVariable();
+    public void setVariable(SetVariableData SetVariableData) {
+        Component component = SetVariableData.getComponent();
+        Variable variable = SetVariableData.getVariable();
 
         VariableAccessor accessor = variableAccessors.get(variable.getName());
 
-        accessor.set(new AttributePath(component, variable, setVariableDatum.getAttributeType()), setVariableDatum.getAttributeValue());
+        accessor.set(new AttributePath(component, variable, SetVariableData.getAttributeType()), SetVariableData.getAttributeValue());
     }
 
     /**
-     * Validates {@link SetVariableDatum} for proper variable path (variable name, instance, attributeType, evseId, connectorId) and modification access.
+     * Validates {@link SetVariableData} for proper variable path (variable name, instance, attributeType, evseId, connectorId) and modification access.
      * Since station has to reply to SetVariablesRequest immediately, validation logic should happen before update's execution.
      * This is why validate stands as a separate operation.
      *
-     * @param setVariableDatum contains path to variable and new value
+     * @param SetVariableData contains path to variable and new value
      * @return result which contains status of variable modification
      */
-    public SetVariableValidationResult validate(SetVariableDatum setVariableDatum) {
-        Optional<VariableAccessor> optionalVariableAccessor = Optional.ofNullable(variableAccessors.get(setVariableDatum.getVariable().getName()));
+    public SetVariableValidationResult validate(SetVariableData SetVariableData) {
+        Optional<VariableAccessor> optionalVariableAccessor = Optional.ofNullable(variableAccessors.get(SetVariableData.getVariable().getName()));
 
         SetVariableResult validationResult = optionalVariableAccessor
-                .map(accessor -> accessor.validate(new AttributePath(setVariableDatum.getComponent(), setVariableDatum.getVariable(), setVariableDatum.getAttributeType()), setVariableDatum.getAttributeValue()))
+                .map(accessor -> accessor.validate(new AttributePath(SetVariableData.getComponent(), SetVariableData.getVariable(), SetVariableData.getAttributeType()), SetVariableData.getAttributeValue()))
                 .orElse(new SetVariableResult()
-                        .withComponent(setVariableDatum.getComponent())
-                        .withVariable(setVariableDatum.getVariable())
-                        .withAttributeType(SetVariableResult.AttributeType.fromValue(setVariableDatum.getAttributeType().value()))
-                        .withAttributeStatus(SetVariableResult.AttributeStatus.UNKNOWN_VARIABLE)
+                        .withComponent(SetVariableData.getComponent())
+                        .withVariable(SetVariableData.getVariable())
+                        .withAttributeType(AttributeEnum.fromValue(SetVariableData.getAttributeType().value()))
+                        .withAttributeStatus(SetVariableStatusEnum.UNKNOWN_VARIABLE)
                 );
 
-        return new SetVariableValidationResult(setVariableDatum, validationResult);
+        return new SetVariableValidationResult(SetVariableData, validationResult);
     }
 
     /**
@@ -118,10 +130,10 @@ public abstract class StationComponent {
      * Generates report data for all variables in the component
      *
      * @param onlyMutableVariables if true, returns only those variables that can be set by the operator
-     * @return list of {@link ReportDatum}
+     * @return list of {@link ReportData}
      */
-    public List<ReportDatum> generateReportData(boolean onlyMutableVariables) {
-        List<ReportDatum> reportData = new ArrayList<>();
+    public List<ReportData> generateReportData(boolean onlyMutableVariables) {
+        List<ReportData> reportData = new ArrayList<>();
 
         variableAccessors.values().forEach(accessor -> {
             if (shouldGenerateReportDataForVariable(onlyMutableVariables, accessor.isMutable())) {

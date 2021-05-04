@@ -1,9 +1,8 @@
 package com.evbox.everon.ocpp.simulator.station.component.variable.attribute;
 
-import com.evbox.everon.ocpp.v20.message.centralserver.Component;
-import com.evbox.everon.ocpp.v20.message.centralserver.GetVariableDatum;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableDatum;
-import com.evbox.everon.ocpp.v20.message.centralserver.Variable;
+import com.evbox.everon.ocpp.v20.message.AttributeEnum;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.Variable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
@@ -31,13 +30,7 @@ public class AttributePath {
      */
     private AttributeType attributeType;
 
-    public AttributePath(Component component, Variable variable, SetVariableDatum.AttributeType attributeType) {
-        this.component = component;
-        this.variable = variable;
-        this.attributeType = AttributeType.from(attributeType);
-    }
-
-    public AttributePath(Component component, Variable variable, GetVariableDatum.AttributeType attributeType) {
+    public AttributePath(Component component, Variable variable, AttributeEnum attributeType) {
         this.component = component;
         this.variable = variable;
         this.attributeType = AttributeType.from(attributeType);

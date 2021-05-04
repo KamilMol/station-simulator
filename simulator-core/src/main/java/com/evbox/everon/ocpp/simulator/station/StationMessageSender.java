@@ -12,8 +12,33 @@ import com.evbox.everon.ocpp.simulator.station.support.CallIdGenerator;
 import com.evbox.everon.ocpp.simulator.station.support.LRUCache;
 import com.evbox.everon.ocpp.simulator.websocket.AbstractWebSocketClientInboxMessage;
 import com.evbox.everon.ocpp.simulator.websocket.WebSocketClient;
-import com.evbox.everon.ocpp.v20.message.centralserver.*;
-import com.evbox.everon.ocpp.v20.message.station.*;
+import com.evbox.everon.ocpp.v20.message.AuthorizeRequest;
+import com.evbox.everon.ocpp.v20.message.AuthorizeResponse;
+import com.evbox.everon.ocpp.v20.message.BootNotificationRequest;
+import com.evbox.everon.ocpp.v20.message.BootNotificationResponse;
+import com.evbox.everon.ocpp.v20.message.BootReasonEnum;
+import com.evbox.everon.ocpp.v20.message.ChargingStateEnum;
+import com.evbox.everon.ocpp.v20.message.ComponentVariable;
+import com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum;
+import com.evbox.everon.ocpp.v20.message.DataTransferRequest;
+import com.evbox.everon.ocpp.v20.message.EventData;
+import com.evbox.everon.ocpp.v20.message.HeartbeatRequest;
+import com.evbox.everon.ocpp.v20.message.HeartbeatResponse;
+import com.evbox.everon.ocpp.v20.message.MonitoringData;
+import com.evbox.everon.ocpp.v20.message.NotifyCustomerInformationRequest;
+import com.evbox.everon.ocpp.v20.message.NotifyEventRequest;
+import com.evbox.everon.ocpp.v20.message.NotifyMonitoringReportRequest;
+import com.evbox.everon.ocpp.v20.message.NotifyReportRequest;
+import com.evbox.everon.ocpp.v20.message.ReasonEnum;
+import com.evbox.everon.ocpp.v20.message.ReportData;
+import com.evbox.everon.ocpp.v20.message.SetMonitoringData;
+import com.evbox.everon.ocpp.v20.message.SignCertificateRequest;
+import com.evbox.everon.ocpp.v20.message.StatusNotificationRequest;
+import com.evbox.everon.ocpp.v20.message.StatusNotificationResponse;
+import com.evbox.everon.ocpp.v20.message.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.TransactionEventResponse;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
+import com.evbox.everon.ocpp.v20.message.VariableMonitoring;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nullable;
@@ -65,13 +90,13 @@ public class StationMessageSender {
     /**
      * Send NotifyReportRequest event.
      *
-     * @param requestId         request id
-     * @param monitoringResult  monitors to be reported
+     * @param requestId        request id
+     * @param monitoringResult monitors to be reported
      */
-    public void sendNotifyMonitoringReport(Integer requestId, Map<ComponentVariable, List<SetMonitoringDatum>> monitoringResult) {
-        List<Monitor> monitors = monitoringResult.entrySet().stream()
-                                                            .map(StationMessageSender::toMonitor)
-                                                            .collect(Collectors.toList());
+    public void sendNotifyMonitoringReport(Integer requestId, Map<ComponentVariable, List<SetMonitoringData>> monitoringResult) {
+        List<MonitoringData> monitors = monitoringResult.entrySet().stream()
+                .map(StationMessageSender::toMonitor)
+                .collect(Collectors.toList());
 
         NotifyMonitoringReportRequest payload = new NotifyMonitoringReportRequest()
                 .withRequestId(requestId)
@@ -88,7 +113,7 @@ public class StationMessageSender {
      *
      * @param eventData list of event data
      */
-    public void sendNotifyEvent(List<EventDatum> eventData) {
+    public void sendNotifyEvent(List<EventData> eventData) {
         NotifyEventRequest payload = new NotifyEventRequest()
                 .withGeneratedAt(ZonedDateTime.now(ZoneOffset.UTC))
                 .withTbc(false)
@@ -105,7 +130,7 @@ public class StationMessageSender {
      * @param reason  reason why it was triggered
      * @param tokenId token identity
      */
-    public void sendTransactionEventStart(Integer evseId, TransactionEventRequest.TriggerReason reason, String tokenId) {
+    public void sendTransactionEventStart(Integer evseId, TriggerReasonEnum reason, String tokenId) {
         sendTransactionEventStart(evseId, null, null, reason, tokenId, null);
     }
 
@@ -117,7 +142,7 @@ public class StationMessageSender {
      * @param remoteStartId remote start id
      * @param reason        reason why it was triggered
      */
-    public void sendTransactionEventStart(Integer evseId, Integer connectorId, Integer remoteStartId, TransactionEventRequest.TriggerReason reason) {
+    public void sendTransactionEventStart(Integer evseId, Integer connectorId, Integer remoteStartId, TriggerReasonEnum reason) {
         sendTransactionEventStart(evseId, connectorId, remoteStartId, reason, null, null);
     }
 
@@ -129,7 +154,7 @@ public class StationMessageSender {
      * @param reason        reason why it was triggered
      * @param chargingState charging state of the station
      */
-    public void sendTransactionEventStart(Integer evseId, Integer connectorId, TransactionEventRequest.TriggerReason reason, TransactionData.ChargingState chargingState) {
+    public void sendTransactionEventStart(Integer evseId, Integer connectorId, TriggerReasonEnum reason, ChargingStateEnum chargingState) {
         sendTransactionEventStart(evseId, connectorId, null, reason, null, chargingState);
     }
 
@@ -141,7 +166,7 @@ public class StationMessageSender {
      * @param reason        reason why it was triggered
      * @param chargingState charging state of the station
      */
-    public void sendTransactionEventUpdate(Integer evseId, Integer connectorId, TransactionEventRequest.TriggerReason reason, TransactionData.ChargingState chargingState) {
+    public void sendTransactionEventUpdate(Integer evseId, Integer connectorId, TriggerReasonEnum reason, ChargingStateEnum chargingState) {
         sendTransactionEventUpdate(evseId, connectorId, reason, chargingState, null);
     }
 
@@ -154,7 +179,7 @@ public class StationMessageSender {
      * @param chargingState charging state of the station
      * @param powerConsumed power consumed by the evse
      */
-    public void sendTransactionEventUpdate(Integer evseId, Integer connectorId, TransactionEventRequest.TriggerReason reason, TransactionData.ChargingState chargingState, Long powerConsumed) {
+    public void sendTransactionEventUpdate(Integer evseId, Integer connectorId, TriggerReasonEnum reason, ChargingStateEnum chargingState, Long powerConsumed) {
         sendTransactionEventUpdate(evseId, connectorId, reason, null, chargingState, powerConsumed);
     }
 
@@ -167,7 +192,7 @@ public class StationMessageSender {
      * @param tokenId       token identity
      * @param chargingState charging state of the station
      */
-    public void sendTransactionEventUpdate(Integer evseId, Integer connectorId, TransactionEventRequest.TriggerReason reason, String tokenId, TransactionData.ChargingState chargingState) {
+    public void sendTransactionEventUpdate(Integer evseId, Integer connectorId, TriggerReasonEnum reason, String tokenId, ChargingStateEnum chargingState) {
         sendTransactionEventUpdate(evseId, connectorId, reason, tokenId, chargingState, null);
     }
 
@@ -181,7 +206,7 @@ public class StationMessageSender {
      * @param chargingState charging state of the station
      * @param powerConsumed power consumed by the evse
      */
-    public void sendTransactionEventUpdate(Integer evseId, Integer connectorId, TransactionEventRequest.TriggerReason reason, String tokenId, TransactionData.ChargingState chargingState, Long powerConsumed) {
+    public void sendTransactionEventUpdate(Integer evseId, Integer connectorId, TriggerReasonEnum reason, String tokenId, ChargingStateEnum chargingState, Long powerConsumed) {
         TransactionEventRequest payload = payloadFactory.createTransactionEventUpdate(stationStore.getStationId(), stationStore.findEvse(evseId),
                 connectorId, reason, tokenId, chargingState, stationStore.getCurrentTime(), Optional.ofNullable(powerConsumed).orElse(0L));
 
@@ -198,7 +223,7 @@ public class StationMessageSender {
      * @param powerConsumed kw consumed during transaction
      * @param subscriber    callback that will be executed after receiving a response from OCPP server
      */
-    public void sendTransactionEventEndedAndSubscribe(Integer evseId, Integer connectorId, TransactionEventRequest.TriggerReason reason, TransactionData.StoppedReason stoppedReason,
+    public void sendTransactionEventEndedAndSubscribe(Integer evseId, Integer connectorId, TriggerReasonEnum reason, ReasonEnum stoppedReason,
                                                       long powerConsumed, Subscriber<TransactionEventRequest, TransactionEventResponse> subscriber) {
         TransactionEventRequest payload = payloadFactory.createTransactionEventEnded(stationStore.getStationId(), stationStore.findEvse(evseId),
                 connectorId, reason, stoppedReason, stationStore.getCurrentTime(), powerConsumed);
@@ -218,7 +243,7 @@ public class StationMessageSender {
      * @param stoppedReason reason why transaction was stopped
      * @param powerConsumed kwh consumed during session
      */
-    public void sendTransactionEventEnded(Integer evseId, Integer connectorId, TransactionEventRequest.TriggerReason triggerReason, TransactionData.StoppedReason stoppedReason, long powerConsumed) {
+    public void sendTransactionEventEnded(Integer evseId, Integer connectorId, TriggerReasonEnum triggerReason, ReasonEnum stoppedReason, long powerConsumed) {
         TransactionEventRequest payload = payloadFactory.createTransactionEventEnded(stationStore.getStationId(), stationStore.findEvse(evseId),
                 connectorId, triggerReason, stoppedReason, stationStore.getCurrentTime(), powerConsumed);
 
@@ -247,7 +272,7 @@ public class StationMessageSender {
      * @param reason     reason why it was triggered
      * @param subscriber callback that will be executed after receiving a response from OCPP server
      */
-    public void sendBootNotificationAndSubscribe(BootNotificationRequest.Reason reason, Subscriber<BootNotificationRequest, BootNotificationResponse> subscriber) {
+    public void sendBootNotificationAndSubscribe(BootReasonEnum reason, Subscriber<BootNotificationRequest, BootNotificationResponse> subscriber) {
         BootNotificationRequest payload = payloadFactory.createBootNotification(reason);
 
         Call call = createAndRegisterCall(ActionType.BOOT_NOTIFICATION, payload);
@@ -261,7 +286,7 @@ public class StationMessageSender {
      *
      * @param reason reason why it was triggered
      */
-    public void sendBootNotification(BootNotificationRequest.Reason reason) {
+    public void sendBootNotification(BootReasonEnum reason) {
         BootNotificationRequest payload = payloadFactory.createBootNotification(reason);
 
         sendPayloadOfType(ActionType.BOOT_NOTIFICATION, payload);
@@ -300,11 +325,11 @@ public class StationMessageSender {
     /**
      * Send StatusNotification event.
      *
-     * @param evseId            evse identity
-     * @param connectorId       connector identity
-     * @param connectorStatus   status of the connector
+     * @param evseId          evse identity
+     * @param connectorId     connector identity
+     * @param connectorStatus status of the connector
      */
-    public void sendStatusNotification(int evseId, int connectorId, StatusNotificationRequest.ConnectorStatus connectorStatus) {
+    public void sendStatusNotification(int evseId, int connectorId, ConnectorStatusEnum connectorStatus) {
         StatusNotificationRequest payload = payloadFactory.createStatusNotification(evseId, connectorId, connectorStatus, stationStore.getCurrentTime());
 
         sendPayloadOfType(ActionType.STATUS_NOTIFICATION, payload);
@@ -348,12 +373,12 @@ public class StationMessageSender {
     /**
      * Sends NotifyReport event
      *
-     * @param requestId requestId from GetBaseReport
-     * @param tbc to be continued, signifies if this is the last report
-     * @param seqNo sequence number of this message
+     * @param requestId  requestId from GetBaseReport
+     * @param tbc        to be continued, signifies if this is the last report
+     * @param seqNo      sequence number of this message
      * @param reportData report data containing information about variables
      */
-    public void sendNotifyReport(@Nullable Integer requestId, boolean tbc, int seqNo, ZonedDateTime generatedAt, List<ReportDatum> reportData) {
+    public void sendNotifyReport(@Nullable Integer requestId, boolean tbc, int seqNo, ZonedDateTime generatedAt, List<ReportData> reportData) {
         NotifyReportRequest payload =
                 payloadFactory.createNotifyReportRequest(requestId, tbc, seqNo, generatedAt, reportData);
 
@@ -405,9 +430,9 @@ public class StationMessageSender {
     /**
      * Send {@link CallError} to ocpp server.
      *
-     * @param callId  identity of the message
+     * @param callId    identity of the message
      * @param errorCode the error code
-     * @param payload body of the message
+     * @param payload   body of the message
      */
     public void sendCallError(String callId, CallError.Code errorCode, Object payload) {
         CallError callError = new CallError(callId, errorCode, payload);
@@ -429,10 +454,12 @@ public class StationMessageSender {
      *
      * @return timestamp in milliseconds
      */
-    public LocalDateTime getTimeOfLastMessageSent() { return timeOfLastMessageSent; }
+    public LocalDateTime getTimeOfLastMessageSent() {
+        return timeOfLastMessageSent;
+    }
 
-    private static Monitor toMonitor(Map.Entry<ComponentVariable, List<SetMonitoringDatum>> entry) {
-        return new Monitor()
+    private static MonitoringData toMonitor(Map.Entry<ComponentVariable, List<SetMonitoringData>> entry) {
+        return new MonitoringData()
                 .withComponent(entry.getKey().getComponent())
                 .withVariable(entry.getKey().getVariable())
                 .withVariableMonitoring(
@@ -441,12 +468,12 @@ public class StationMessageSender {
                                         .withId(d.getId())
                                         .withSeverity(d.getSeverity())
                                         .withTransaction(d.getTransaction())
-                                        .withType(VariableMonitoring.Type.fromValue(d.getType().value()))
+                                        .withType(d.getType())
                                         .withValue(d.getValue()))
                                 .collect(Collectors.toList()));
     }
 
-    private void sendTransactionEventStart(Integer evseId, Integer connectorId, Integer remoteStartId, TransactionEventRequest.TriggerReason reason, String tokenId, TransactionData.ChargingState chargingState) {
+    private void sendTransactionEventStart(Integer evseId, Integer connectorId, Integer remoteStartId, TriggerReasonEnum reason, String tokenId, ChargingStateEnum chargingState) {
         String stationId = stationStore.getStationId();
 
         TransactionEventRequest transactionEvent = payloadFactory.createTransactionEventStart(stationId, stationStore.findEvse(evseId),
@@ -454,7 +481,7 @@ public class StationMessageSender {
 
         sendPayloadOfType(ActionType.TRANSACTION_EVENT, transactionEvent);
 
-        if(stationId.toUpperCase().startsWith(ISO_STATION_PREFIX)){
+        if (stationId.toUpperCase().startsWith(ISO_STATION_PREFIX)) {
             sendPayloadOfType(ActionType.NOTIFY_EV_CHARGING_NEEDS, payloadFactory.createNotifyEVChargingNeeds(evseId));
         }
     }

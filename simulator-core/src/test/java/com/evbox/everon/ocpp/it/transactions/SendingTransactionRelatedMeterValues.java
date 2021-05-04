@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.*;
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_CONNECTOR_ID;
 import static com.evbox.everon.ocpp.mock.expect.ExpectedCount.times;
-import static com.evbox.everon.ocpp.v20.message.common.IdToken.Type.ISO_14443;
+import static com.evbox.everon.ocpp.v20.message.IdTokenEnum.ISO_14443;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 

@@ -7,11 +7,13 @@ import com.evbox.everon.ocpp.simulator.station.StationStore;
 import com.evbox.everon.ocpp.simulator.station.evse.Evse;
 import com.evbox.everon.ocpp.simulator.station.subscription.Subscriber;
 import com.evbox.everon.ocpp.simulator.websocket.AbstractWebSocketClientInboxMessage;
-import com.evbox.everon.ocpp.v20.message.centralserver.ResetRequest;
-import com.evbox.everon.ocpp.v20.message.centralserver.ResetResponse;
-import com.evbox.everon.ocpp.v20.message.station.BootNotificationRequest;
-import com.evbox.everon.ocpp.v20.message.station.TransactionData;
-import com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.BootReasonEnum;
+import com.evbox.everon.ocpp.v20.message.ReasonEnum;
+import com.evbox.everon.ocpp.v20.message.ResetEnum;
+import com.evbox.everon.ocpp.v20.message.ResetRequest;
+import com.evbox.everon.ocpp.v20.message.ResetResponse;
+import com.evbox.everon.ocpp.v20.message.ResetStatusEnum;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +28,11 @@ import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_MESS
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ResetRequestHandlerTest {
@@ -42,12 +48,12 @@ public class ResetRequestHandlerTest {
     @Test
     void verifyMessageOnImmediateResetRequestType() throws JsonProcessingException {
         ResetRequest request = OcppMessageFactory.createResetRequest()
-                .withType(ResetRequest.Type.IMMEDIATE)
+                .withType(ResetEnum.IMMEDIATE)
                 .build();
 
         resetRequestHandler.handle(DEFAULT_MESSAGE_ID, request);
 
-        ResetResponse payload = new ResetResponse().withStatus(ResetResponse.Status.ACCEPTED);
+        ResetResponse payload = new ResetResponse().withStatus(ResetStatusEnum.ACCEPTED);
 
         ArgumentCaptor<AbstractWebSocketClientInboxMessage> messageCaptor = ArgumentCaptor.forClass(AbstractWebSocketClientInboxMessage.class);
 
@@ -65,7 +71,7 @@ public class ResetRequestHandlerTest {
     void verifyEventSending() {
         Evse evse = mock(Evse.class);
         ResetRequest request = OcppMessageFactory.createResetRequest()
-                .withType(ResetRequest.Type.IMMEDIATE)
+                .withType(ResetEnum.IMMEDIATE)
                 .build();
 
         when(stationStore.getEvseIds()).thenReturn(Collections.singletonList(1));
@@ -77,14 +83,14 @@ public class ResetRequestHandlerTest {
 
         verify(stationStore).stopCharging(anyInt());
         verify(stationMessageSender).sendTransactionEventEndedAndSubscribe(anyInt(), anyInt(),
-                any(TransactionEventRequest.TriggerReason.class), any(TransactionData.StoppedReason.class), anyLong(), any(Subscriber.class));
+                any(TriggerReasonEnum.class), any(ReasonEnum.class), anyLong(), any(Subscriber.class));
 
     }
 
     @Test
     void verifyRebooting() {
         ResetRequest request = OcppMessageFactory.createResetRequest()
-                .withType(ResetRequest.Type.IMMEDIATE)
+                .withType(ResetEnum.IMMEDIATE)
                 .build();
 
         when(stationStore.getEvseIds()).thenReturn(Collections.singletonList(1));
@@ -95,19 +101,19 @@ public class ResetRequestHandlerTest {
         verify(stationStore).clearTokens();
         verify(stationStore).clearTransactions();
         verify(stationMessageSender, times(3)).sendMessage(any(AbstractWebSocketClientInboxMessage.class));
-        verify(stationMessageSender).sendBootNotification(any(BootNotificationRequest.Reason.class));
+        verify(stationMessageSender).sendBootNotification(any(BootReasonEnum.class));
 
     }
 
     @Test
     void verifyMessageOnIdleResetRequestType() throws JsonProcessingException {
         ResetRequest request = OcppMessageFactory.createResetRequest()
-                .withType(ResetRequest.Type.ON_IDLE)
+                .withType(ResetEnum.ON_IDLE)
                 .build();
 
         resetRequestHandler.handle(DEFAULT_MESSAGE_ID, request);
 
-        ResetResponse payload = new ResetResponse().withStatus(ResetResponse.Status.ACCEPTED);
+        ResetResponse payload = new ResetResponse().withStatus(ResetStatusEnum.ACCEPTED);
 
         ArgumentCaptor<AbstractWebSocketClientInboxMessage> messageCaptor = ArgumentCaptor.forClass(AbstractWebSocketClientInboxMessage.class);
 

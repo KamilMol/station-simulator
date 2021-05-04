@@ -6,7 +6,12 @@ import com.evbox.everon.ocpp.simulator.message.ActionType;
 import com.evbox.everon.ocpp.simulator.message.Call;
 import com.evbox.everon.ocpp.simulator.station.component.ocppcommctrlr.HeartbeatIntervalVariableAccessor;
 import com.evbox.everon.ocpp.simulator.station.component.ocppcommctrlr.OCPPCommCtrlrComponent;
-import com.evbox.everon.ocpp.v20.message.centralserver.*;
+import com.evbox.everon.ocpp.v20.message.AttributeEnum;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.GetVariableData;
+import com.evbox.everon.ocpp.v20.message.GetVariablesRequest;
+import com.evbox.everon.ocpp.v20.message.GetVariablesResponse;
+import com.evbox.everon.ocpp.v20.message.Variable;
 import org.junit.jupiter.api.Test;
 
 import static com.evbox.everon.ocpp.mock.constants.StationConstants.DEFAULT_CALL_ID;
@@ -25,7 +30,7 @@ class GetVariablesIt extends StationSimulatorSetUp {
         stationSimulatorRunner.run();
 
         GetVariablesRequest getVariablesRequest =
-                createGetVariablesRequest(OCPPCommCtrlrComponent.NAME, HeartbeatIntervalVariableAccessor.NAME, GetVariableDatum.AttributeType.ACTUAL);
+                createGetVariablesRequest(OCPPCommCtrlrComponent.NAME, HeartbeatIntervalVariableAccessor.NAME, AttributeEnum.ACTUAL);
 
         Call call = new Call(DEFAULT_CALL_ID, ActionType.GET_VARIABLES, getVariablesRequest);
 
@@ -47,7 +52,7 @@ class GetVariablesIt extends StationSimulatorSetUp {
         GetVariablesRequest getVariablesRequest =
                 createGetVariablesRequest(OCPPCommCtrlrComponent.NAME,
                         HeartbeatIntervalVariableAccessor.NAME,
-                        GetVariableDatum.AttributeType.ACTUAL);
+                        AttributeEnum.ACTUAL);
 
         shouldGetHeartbeatIntervalWithGetVariablesRequestImpl(getVariablesRequest);
     }
@@ -58,7 +63,7 @@ class GetVariablesIt extends StationSimulatorSetUp {
         GetVariablesRequest getVariablesRequest =
                 createGetVariablesRequest(OCPPCommCtrlrComponent.NAME.toUpperCase(),
                         HeartbeatIntervalVariableAccessor.NAME.toUpperCase(),
-                        GetVariableDatum.AttributeType.ACTUAL);
+                        AttributeEnum.ACTUAL);
 
         shouldGetHeartbeatIntervalWithGetVariablesRequestImpl(getVariablesRequest);
     }
@@ -82,8 +87,8 @@ class GetVariablesIt extends StationSimulatorSetUp {
         });
     }
 
-    GetVariablesRequest createGetVariablesRequest(String component, String variable, GetVariableDatum.AttributeType attributeType) {
-        GetVariableDatum getVariableDatum = new GetVariableDatum()
+    GetVariablesRequest createGetVariablesRequest(String component, String variable, AttributeEnum attributeType) {
+        GetVariableData getVariableDatum = new GetVariableData()
                 .withComponent(new Component().withName(new CiString.CiString50(component)))
                 .withVariable(new Variable().withName(new CiString.CiString50(variable)))
                 .withAttributeType(attributeType);

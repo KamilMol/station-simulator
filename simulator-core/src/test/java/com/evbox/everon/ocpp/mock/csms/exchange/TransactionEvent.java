@@ -1,8 +1,11 @@
 package com.evbox.everon.ocpp.mock.csms.exchange;
 
 import com.evbox.everon.ocpp.simulator.message.Call;
-import com.evbox.everon.ocpp.v20.message.station.TransactionData;
-import com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.ChargingStateEnum;
+import com.evbox.everon.ocpp.v20.message.ReasonEnum;
+import com.evbox.everon.ocpp.v20.message.TransactionEventEnum;
+import com.evbox.everon.ocpp.v20.message.TransactionEventRequest;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -28,7 +31,7 @@ public class TransactionEvent {
      * @param type transaction type
      * @return checks whether an incoming request is TrasanctionEvent or not.
      */
-    public static Predicate<Call> request(TransactionEventRequest.EventType type) {
+    public static Predicate<Call> request(TransactionEventEnum type) {
         return request -> equalsType(request, TRANSACTION_EVENT) && equalsEventType(request, type);
     }
 
@@ -39,7 +42,7 @@ public class TransactionEvent {
      * @param stoppedReason stopped reason
      * @return checks whether an incoming request is TrasanctionEvent or not.
      */
-    public static Predicate<Call> request(TransactionEventRequest.EventType type, TransactionData.StoppedReason stoppedReason) {
+    public static Predicate<Call> request(TransactionEventEnum type, ReasonEnum stoppedReason) {
         return request -> equalsType(request, TRANSACTION_EVENT) &&
                 equalsEventType(request, type) &&
                 equalsStoppedReason(request, stoppedReason);
@@ -54,7 +57,7 @@ public class TransactionEvent {
      * @param triggerReason trigger reason
      * @return checks whether an incoming request is TransactionEvent or not.
      */
-    public static Predicate<Call> request(TransactionEventRequest.EventType type, TransactionData.ChargingState chargingState, String transactionId, TransactionEventRequest.TriggerReason triggerReason) {
+    public static Predicate<Call> request(TransactionEventEnum type, ChargingStateEnum chargingState, String transactionId, TriggerReasonEnum triggerReason) {
         return request -> equalsType(request, TRANSACTION_EVENT) &&
                 equalsEventType(request, type) &&
                 equalsChargingState(request, chargingState) &&
@@ -71,7 +74,7 @@ public class TransactionEvent {
      * @param evseId        evse id
      * @return checks whether an incoming request is TransactionEvent or not.
      */
-    public static Predicate<Call> request(TransactionEventRequest.EventType type, int seqNo, String transactionId, int evseId) {
+    public static Predicate<Call> request(TransactionEventEnum type, int seqNo, String transactionId, int evseId) {
         return request -> equalsType(request, TRANSACTION_EVENT) &&
                 equalsEventType(request, type) &&
                 equalsSeqNo(request, seqNo) &&
@@ -89,7 +92,7 @@ public class TransactionEvent {
      * @param tokenId       id of the auth token
      * @return checks whether an incoming request is TransactionEvent or not.
      */
-    public static Predicate<Call> request(TransactionEventRequest.EventType type, int seqNo, String transactionId, int evseId, String tokenId) {
+    public static Predicate<Call> request(TransactionEventEnum type, int seqNo, String transactionId, int evseId, String tokenId) {
         return request -> equalsType(request, TRANSACTION_EVENT) &&
                 equalsEventType(request, type) &&
                 equalsSeqNo(request, seqNo) &&
@@ -111,13 +114,13 @@ public class TransactionEvent {
      * @return checks whether an incoming request is TransactionEvent or not.
      */
     public static Predicate<Call> request(
-            TransactionEventRequest.EventType type,
+            TransactionEventEnum type,
             int seqNo,
             String transactionId,
             int evseId,
             String tokenId,
-            TransactionData.ChargingState chargingState,
-            TransactionEventRequest.TriggerReason triggerReason) {
+            ChargingStateEnum chargingState,
+            TriggerReasonEnum triggerReason) {
 
         return request -> equalsType(request, TRANSACTION_EVENT) &&
                 equalsEventType(request, type) &&
@@ -138,7 +141,7 @@ public class TransactionEvent {
         return emptyResponse();
     }
 
-    private static boolean equalsEventType(Call request, TransactionEventRequest.EventType type) {
+    private static boolean equalsEventType(Call request, TransactionEventEnum type) {
         return ((TransactionEventRequest) request.getPayload()).getEventType() == type;
     }
 
@@ -147,7 +150,7 @@ public class TransactionEvent {
     }
 
     private static boolean equalsTransactionId(Call request, String transactionId) {
-        return ((TransactionEventRequest) request.getPayload()).getTransactionData().getId().toString().equals(transactionId);
+        return ((TransactionEventRequest) request.getPayload()).getTransactionInfo().getTransactionId().toString().equals(transactionId);
     }
 
     private static boolean equalsEvseId(Call request, int evseId) {
@@ -158,16 +161,16 @@ public class TransactionEvent {
         return ((TransactionEventRequest) request.getPayload()).getIdToken().getIdToken().toString().equals(tokenId);
     }
 
-    private static boolean equalsChargingState(Call request, TransactionData.ChargingState chargingState) {
-        return ((TransactionEventRequest) request.getPayload()).getTransactionData().getChargingState() == chargingState;
+    private static boolean equalsChargingState(Call request, ChargingStateEnum chargingState) {
+        return ((TransactionEventRequest) request.getPayload()).getTransactionInfo().getChargingState() == chargingState;
     }
 
-    private static boolean equalsTriggerReason(Call request, TransactionEventRequest.TriggerReason triggerReason) {
+    private static boolean equalsTriggerReason(Call request, TriggerReasonEnum triggerReason) {
         return ((TransactionEventRequest) request.getPayload()).getTriggerReason() == triggerReason;
     }
 
-    private static boolean equalsStoppedReason(Call request, TransactionData.StoppedReason stoppedReason) {
-        return ((TransactionEventRequest) request.getPayload()).getTransactionData().getStoppedReason() == stoppedReason;
+    private static boolean equalsStoppedReason(Call request, ReasonEnum stoppedReason) {
+        return ((TransactionEventRequest) request.getPayload()).getTransactionInfo().getStoppedReason() == stoppedReason;
     }
 }
 

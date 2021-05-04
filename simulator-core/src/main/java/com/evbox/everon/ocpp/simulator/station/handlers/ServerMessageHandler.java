@@ -1,16 +1,60 @@
 package com.evbox.everon.ocpp.simulator.station.handlers;
 
-import com.evbox.everon.ocpp.simulator.message.*;
-import com.evbox.everon.ocpp.simulator.station.*;
+import com.evbox.everon.ocpp.simulator.message.ActionType;
+import com.evbox.everon.ocpp.simulator.message.Call;
+import com.evbox.everon.ocpp.simulator.message.CallError;
+import com.evbox.everon.ocpp.simulator.message.CallResult;
+import com.evbox.everon.ocpp.simulator.message.MessageType;
+import com.evbox.everon.ocpp.simulator.message.RawCall;
+import com.evbox.everon.ocpp.simulator.station.Station;
+import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
+import com.evbox.everon.ocpp.simulator.station.StationStore;
 import com.evbox.everon.ocpp.simulator.station.component.StationComponentsHolder;
 import com.evbox.everon.ocpp.simulator.station.evse.StateManager;
 import com.evbox.everon.ocpp.simulator.station.exceptions.BadServerResponseException;
 import com.evbox.everon.ocpp.simulator.station.exceptions.UnknownActionException;
-import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.*;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.CancelReservationRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.CertificateSignedRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.ChangeAvailabilityRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.ClearVariableMonitoringRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.CustomerInformationRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.GetBaseReportRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.GetMonitoringReportRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.GetVariablesRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.OcppRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.RequestStartTransactionRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.RequestStopTransactionRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.ResetRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.SendLocalListRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.SetChargingProfileRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.SetNetworkProfileHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.SetVariableMonitoringRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.SetVariablesRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.TriggerMessageRequestHandler;
+import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.UnlockConnectorRequestHandler;
 import com.evbox.everon.ocpp.simulator.station.handlers.ocpp.support.AvailabilityManager;
 import com.evbox.everon.ocpp.simulator.station.subscription.SubscriptionRegistry;
-import com.evbox.everon.ocpp.v20.message.centralserver.*;
-import com.evbox.everon.ocpp.v20.message.station.*;
+import com.evbox.everon.ocpp.v20.message.CancelReservationRequest;
+import com.evbox.everon.ocpp.v20.message.CertificateSignedRequest;
+import com.evbox.everon.ocpp.v20.message.ChangeAvailabilityRequest;
+import com.evbox.everon.ocpp.v20.message.ClearVariableMonitoringRequest;
+import com.evbox.everon.ocpp.v20.message.CustomerInformationRequest;
+import com.evbox.everon.ocpp.v20.message.GetBaseReportRequest;
+import com.evbox.everon.ocpp.v20.message.GetMonitoringReportRequest;
+import com.evbox.everon.ocpp.v20.message.GetVariablesRequest;
+import com.evbox.everon.ocpp.v20.message.RequestStartTransactionRequest;
+import com.evbox.everon.ocpp.v20.message.RequestStopTransactionRequest;
+import com.evbox.everon.ocpp.v20.message.ReserveNowRequest;
+import com.evbox.everon.ocpp.v20.message.ReserveNowResponse;
+import com.evbox.everon.ocpp.v20.message.ReserveNowStatusEnum;
+import com.evbox.everon.ocpp.v20.message.ResetRequest;
+import com.evbox.everon.ocpp.v20.message.SendLocalListRequest;
+import com.evbox.everon.ocpp.v20.message.SetChargingProfileRequest;
+import com.evbox.everon.ocpp.v20.message.SetNetworkProfileRequest;
+import com.evbox.everon.ocpp.v20.message.SetVariableMonitoringRequest;
+import com.evbox.everon.ocpp.v20.message.SetVariablesRequest;
+import com.evbox.everon.ocpp.v20.message.TriggerMessageRequest;
+import com.evbox.everon.ocpp.v20.message.UnlockConnectorRequest;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,9 +109,9 @@ public class ServerMessageHandler implements MessageHandler<String> {
                 .put(SendLocalListRequest.class, new SendLocalListRequestHandler(stationMessageSender))
                 .put(SetNetworkProfileRequest.class, new SetNetworkProfileHandler(stationMessageSender, stationStore))
                 .put(CancelReservationRequest.class, new CancelReservationRequestHandler(stationMessageSender, stationStore))
-                .put(ReserveNowRequest.class, (callId, request) -> stationMessageSender.sendCallResult(callId, new ReserveNowResponse().withStatus(ReserveNowResponse.Status.REJECTED)))
+                .put(ReserveNowRequest.class, (callId, request) -> stationMessageSender.sendCallResult(callId, new ReserveNowResponse().withStatus(ReserveNowStatusEnum.REJECTED)))
                 .put(CustomerInformationRequest.class, new CustomerInformationRequestHandler(stationMessageSender))
-                .put(NotifyCentralChargingNeedsRequest.class, new NotifyCentralChargingNeedsRequestHandler(stationMessageSender))
+//                .put(NotifyCentralChargingNeedsRequest.class, new NotifyCentralChargingNeedsRequestHandler(stationMessageSender))
                 .build();
     }
 

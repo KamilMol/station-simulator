@@ -1,14 +1,13 @@
 package com.evbox.everon.ocpp.simulator.station.component.variable.attribute;
 
 import com.evbox.everon.ocpp.simulator.station.component.exception.IllegalAttributeTypeException;
-import com.evbox.everon.ocpp.v20.message.centralserver.GetVariableDatum;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableDatum;
+import com.evbox.everon.ocpp.v20.message.AttributeEnum;
 
 import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Internal type to map from SetVariableDatum.AttributeType and GetVariableDatum.AttributeType
+ * Internal type to map from AttributeEnum and AttributeEnum
  */
 public enum AttributeType {
 
@@ -23,11 +22,7 @@ public enum AttributeType {
         this.type = type;
     }
 
-    public static AttributeType from(SetVariableDatum.AttributeType attributeType) {
-        return from(attributeType.value()).orElseThrow(() -> new IllegalAttributeTypeException("Unknown attribute type: " + attributeType.value()));
-    }
-
-    public static AttributeType from(GetVariableDatum.AttributeType attributeType) {
+    public static AttributeType from(AttributeEnum attributeType) {
         return from(attributeType.value()).orElseThrow(() -> new IllegalAttributeTypeException("Unknown attribute type: " + attributeType.value()));
     }
 

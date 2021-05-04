@@ -2,11 +2,10 @@ package com.evbox.everon.ocpp.simulator.station.handlers.ocpp;
 
 
 import com.evbox.everon.ocpp.simulator.station.StationMessageSender;
-import com.evbox.everon.ocpp.simulator.station.component.StationComponent;
 import com.evbox.everon.ocpp.simulator.station.component.StationComponentsHolder;
-import com.evbox.everon.ocpp.v20.message.station.ClearMonitoringResult;
-import com.evbox.everon.ocpp.v20.message.station.ClearVariableMonitoringRequest;
-import com.evbox.everon.ocpp.v20.message.station.ClearVariableMonitoringResponse;
+import com.evbox.everon.ocpp.v20.message.ClearMonitoringStatusEnum;
+import com.evbox.everon.ocpp.v20.message.ClearVariableMonitoringRequest;
+import com.evbox.everon.ocpp.v20.message.ClearVariableMonitoringResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.evbox.everon.ocpp.v20.message.station.ClearMonitoringResult.Status.ACCEPTED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -53,7 +51,7 @@ class ClearVariableMonitoringRequestHandlerTest {
         verify(stationMessageSender).sendCallResult(anyString(), responseCaptor.capture());
         ClearVariableMonitoringResponse response = responseCaptor.getValue();
         assertThat(response.getClearMonitoringResult().size()).isEqualTo(size);
-        assertTrue(response.getClearMonitoringResult().stream().allMatch(r -> r.getStatus() == ClearMonitoringResult.Status.NOT_FOUND));
+        assertTrue(response.getClearMonitoringResult().stream().allMatch(r -> r.getStatus() == ClearMonitoringStatusEnum.NOT_FOUND));
         assertTrue(response.getClearMonitoringResult().stream().allMatch(r -> r.getId() == 111));
     }
 
@@ -69,7 +67,7 @@ class ClearVariableMonitoringRequestHandlerTest {
         verify(stationMessageSender).sendCallResult(anyString(), responseCaptor.capture());
         ClearVariableMonitoringResponse response = responseCaptor.getValue();
         assertThat(response.getClearMonitoringResult()).hasSize(1);
-        assertThat(response.getClearMonitoringResult().get(0).getStatus()).isEqualTo(ACCEPTED);
+        assertThat(response.getClearMonitoringResult().get(0).getStatus()).isEqualTo(ClearMonitoringStatusEnum.ACCEPTED);
     }
 
 }

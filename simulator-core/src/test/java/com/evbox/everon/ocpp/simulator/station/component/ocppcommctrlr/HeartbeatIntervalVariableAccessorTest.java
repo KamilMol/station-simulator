@@ -5,7 +5,13 @@ import com.evbox.everon.ocpp.simulator.station.Station;
 import com.evbox.everon.ocpp.simulator.station.StationStore;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributePath;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributeType;
-import com.evbox.everon.ocpp.v20.message.centralserver.*;
+import com.evbox.everon.ocpp.v20.message.AttributeEnum;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.GetVariableResult;
+import com.evbox.everon.ocpp.v20.message.GetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.SetVariableResult;
+import com.evbox.everon.ocpp.v20.message.SetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.Variable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -44,41 +50,41 @@ class HeartbeatIntervalVariableAccessorTest {
     @InjectMocks
     HeartbeatIntervalVariableAccessor variableAccessor;
 
-    static Stream<Arguments> setVariableDatumProvider() {
+    static Stream<Arguments> SetVariableDataProvider() {
         return Stream.of(
-                arguments(ACTUAL_ATTRIBUTE, DEFAULT_HEARTBEAT_INTERVAL, SetVariableResult.AttributeStatus.ACCEPTED),
-                arguments(ACTUAL_ATTRIBUTE, -DEFAULT_HEARTBEAT_INTERVAL, SetVariableResult.AttributeStatus.INVALID_VALUE),
-                arguments(MAX_SET_ATTRIBUTE, DEFAULT_HEARTBEAT_INTERVAL, SetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE),
-                arguments(MIN_SET_ATTRIBUTE, DEFAULT_HEARTBEAT_INTERVAL, SetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE),
-                arguments(TARGET_ATTRIBUTE, DEFAULT_HEARTBEAT_INTERVAL, SetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE)
+                arguments(ACTUAL_ATTRIBUTE, DEFAULT_HEARTBEAT_INTERVAL, SetVariableStatusEnum.ACCEPTED),
+                arguments(ACTUAL_ATTRIBUTE, -DEFAULT_HEARTBEAT_INTERVAL, SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE),
+                arguments(MAX_SET_ATTRIBUTE, DEFAULT_HEARTBEAT_INTERVAL, SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE),
+                arguments(MIN_SET_ATTRIBUTE, DEFAULT_HEARTBEAT_INTERVAL, SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE),
+                arguments(TARGET_ATTRIBUTE, DEFAULT_HEARTBEAT_INTERVAL, SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE)
         );
     }
 
     static Stream<Arguments> getVariableDatumProvider() {
         return Stream.of(
-                arguments(ACTUAL_ATTRIBUTE, GetVariableResult.AttributeStatus.ACCEPTED, String.valueOf(DEFAULT_HEARTBEAT_INTERVAL)),
-                arguments(MAX_SET_ATTRIBUTE, GetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE, null),
-                arguments(MIN_SET_ATTRIBUTE, GetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE, null),
-                arguments(TARGET_ATTRIBUTE, GetVariableResult.AttributeStatus.NOT_SUPPORTED_ATTRIBUTE_TYPE, null)
+                arguments(ACTUAL_ATTRIBUTE, GetVariableStatusEnum.ACCEPTED, String.valueOf(DEFAULT_HEARTBEAT_INTERVAL)),
+                arguments(MAX_SET_ATTRIBUTE, GetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE, null),
+                arguments(MIN_SET_ATTRIBUTE, GetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE, null),
+                arguments(TARGET_ATTRIBUTE, GetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE, null)
         );
     }
 
     @ParameterizedTest
-    @MethodSource("setVariableDatumProvider")
-    void shouldValidateSetVariableDatum(AttributePath attributePath, int heartbeatInterval, SetVariableResult.AttributeStatus expectedAttributeStatus) {
+    @MethodSource("SetVariableDataProvider")
+    void shouldValidateSetVariableData(AttributePath attributePath, int heartbeatInterval, SetVariableStatusEnum expectedAttributeStatus) {
         //when
         SetVariableResult result = variableAccessor.validate(attributePath, new CiString.CiString1000(String.valueOf(heartbeatInterval)));
 
         //then
         assertCiString(result.getComponent().getName()).isEqualTo(attributePath.getComponent().getName());
         assertCiString(result.getVariable().getName()).isEqualTo(attributePath.getVariable().getName());
-        assertThat(result.getAttributeType()).isEqualTo(SetVariableResult.AttributeType.fromValue(attributePath.getAttributeType().getName()));
+        assertThat(result.getAttributeType()).isEqualTo(AttributeEnum.fromValue(attributePath.getAttributeType().getName()));
         assertThat(result.getAttributeStatus()).isEqualTo(expectedAttributeStatus);
     }
 
     @ParameterizedTest
     @MethodSource("getVariableDatumProvider")
-    void shouldGetVariableDatum(AttributePath attributePath, GetVariableResult.AttributeStatus expectedAttributeStatus, String expectedValue) {
+    void shouldGetVariableDatum(AttributePath attributePath, GetVariableStatusEnum expectedAttributeStatus, String expectedValue) {
         //given
         initStationMockHeartbeat();
 
@@ -88,7 +94,7 @@ class HeartbeatIntervalVariableAccessorTest {
         //then
         assertCiString(result.getComponent().getName()).isEqualTo(attributePath.getComponent().getName());
         assertCiString(result.getVariable().getName()).isEqualTo(attributePath.getVariable().getName());
-        assertThat(result.getAttributeType()).isEqualTo(GetVariableResult.AttributeType.fromValue(attributePath.getAttributeType().getName()));
+        assertThat(result.getAttributeType()).isEqualTo(AttributeEnum.fromValue(attributePath.getAttributeType().getName()));
         assertThat(result.getAttributeStatus()).isEqualTo(expectedAttributeStatus);
         assertCiString(result.getAttributeValue()).isEqualTo(expectedValue);
     }
@@ -98,7 +104,7 @@ class HeartbeatIntervalVariableAccessorTest {
         //given
         Component component = new Component().withName(new CiString.CiString50(OCPPCommCtrlrComponent.NAME));
         Variable variable = new Variable().withName(new CiString.CiString50(HeartbeatIntervalVariableAccessor.NAME));
-        SetVariableDatum.AttributeType attributeType = SetVariableDatum.AttributeType.ACTUAL;
+        AttributeEnum attributeType = AttributeEnum.ACTUAL;
         int heartbeatInterval = 100;
 
         //when

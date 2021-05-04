@@ -6,9 +6,10 @@ import com.evbox.everon.ocpp.simulator.station.component.variable.SetVariableVal
 import com.evbox.everon.ocpp.simulator.station.component.variable.VariableSetter;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributePath;
 import com.evbox.everon.ocpp.simulator.station.component.variable.attribute.AttributeType;
-import com.evbox.everon.ocpp.v20.message.centralserver.Component;
-import com.evbox.everon.ocpp.v20.message.centralserver.SetVariableResult;
-import com.evbox.everon.ocpp.v20.message.centralserver.Variable;
+import com.evbox.everon.ocpp.v20.message.Component;
+import com.evbox.everon.ocpp.v20.message.SetVariableResult;
+import com.evbox.everon.ocpp.v20.message.SetVariableStatusEnum;
+import com.evbox.everon.ocpp.v20.message.Variable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,7 +51,7 @@ public class TxStopPointVariableAccessorTest {
 
         assertThat(result.getComponent().getName().toString()).isEqualTo(TRANSACTION_COMPONENT_NAME);
         assertThat(result.getVariable().getName().toString()).isEqualTo(TX_STOP_POINT_VARIABLE_NAME);
-        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableResult.AttributeStatus.ACCEPTED);
+        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableStatusEnum.ACCEPTED);
     }
 
     @Test
@@ -61,7 +62,7 @@ public class TxStopPointVariableAccessorTest {
 
         assertThat(result.getComponent().getName().toString()).isEqualTo(TRANSACTION_COMPONENT_NAME);
         assertThat(result.getVariable().getName().toString()).isEqualTo(TX_STOP_POINT_VARIABLE_NAME);
-        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableResult.AttributeStatus.ACCEPTED);
+        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableStatusEnum.ACCEPTED);
     }
 
     @Test
@@ -72,7 +73,7 @@ public class TxStopPointVariableAccessorTest {
 
         SetVariableResult result = setVariableValidator.validate(attributePath(), invalidValues);
 
-        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableResult.AttributeStatus.INVALID_VALUE);
+        assertThat(result.getAttributeStatus()).isEqualTo(SetVariableStatusEnum.NOT_SUPPORTED_ATTRIBUTE_TYPE);
     }
 
     private AttributePath attributePath() {

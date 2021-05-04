@@ -12,7 +12,10 @@ import com.evbox.everon.ocpp.simulator.station.evse.CableStatus;
 import com.evbox.everon.ocpp.simulator.station.evse.Connector;
 import com.evbox.everon.ocpp.simulator.station.evse.Evse;
 import com.evbox.everon.ocpp.simulator.station.support.TransactionIdGenerator;
-import com.evbox.everon.ocpp.v20.message.station.*;
+import com.evbox.everon.ocpp.v20.message.AuthorizationStatusEnum;
+import com.evbox.everon.ocpp.v20.message.ChargingStateEnum;
+import com.evbox.everon.ocpp.v20.message.ConnectorStatusEnum;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -20,10 +23,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest.TriggerReason.AUTHORIZED;
-import static com.evbox.everon.ocpp.v20.message.station.TransactionEventRequest.TriggerReason.REMOTE_START;
+import static com.evbox.everon.ocpp.v20.message.TriggerReasonEnum.REMOTE_START;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 
 /**
  * When the station is ready for an authorize or a plug
@@ -57,7 +58,7 @@ public class AvailableState extends AbstractEvseState {
                 String transactionId = TransactionIdGenerator.getInstance().getAndIncrement();
                 evse.createTransaction(transactionId);
 
-                stationMessageSender.sendTransactionEventStart(evseId, connectorId, TransactionEventRequest.TriggerReason.CABLE_PLUGGED_IN, TransactionData.ChargingState.EV_DETECTED);
+                stationMessageSender.sendTransactionEventStart(evseId, connectorId, TriggerReasonEnum.CABLE_PLUGGED_IN, ChargingStateEnum.EV_CONNECTED);
             }
             future.complete(UserMessageResult.SUCCESSFUL);
         });
@@ -75,8 +76,9 @@ public class AvailableState extends AbstractEvseState {
 
         CompletableFuture<UserMessageResult> future = new CompletableFuture<>();
         stationMessageSender.sendAuthorizeAndSubscribe(tokenId, singletonList(evseId), (request, response) -> {
-            if (response.getIdTokenInfo().getStatus() == IdTokenInfo.Status.ACCEPTED) {
-                List<Evse> authorizedEvses = hasEvses(response) ? getEvseList(response, stationStore) : singletonList(stationStore.getDefaultEvse());
+            if (response.getIdTokenInfo().getStatus() == AuthorizationStatusEnum.ACCEPTED) {
+//                List<Evse> authorizedEvses = hasEvses(response) ? getEvseList(response, stationStore) : singletonList(stationStore.getDefaultEvse());
+                List<Evse> authorizedEvses = singletonList(stationStore.findEvse(evseId));
 
                 authorizedEvses.forEach(evse -> evse.setToken(tokenId));
 
@@ -85,7 +87,7 @@ public class AvailableState extends AbstractEvseState {
                     String transactionId = TransactionIdGenerator.getInstance().getAndIncrement();
                     authorizedEvses.forEach(evse -> evse.createTransaction(transactionId));
 
-                    authorizedEvses.forEach(evse -> stationMessageSender.sendTransactionEventStart(evse.getId(), AUTHORIZED, tokenId));
+                    authorizedEvses.forEach(evse -> stationMessageSender.sendTransactionEventStart(evse.getId(), TriggerReasonEnum.AUTHORIZED, tokenId));
                 }
                 stateManager.setStateForEvse(evseId, new WaitingForPlugState());
 
@@ -115,7 +117,7 @@ public class AvailableState extends AbstractEvseState {
 
         evse.setToken(tokenId);
 
-        stationMessageSender.sendStatusNotification(evse.getId(), connector.getId(), StatusNotificationRequest.ConnectorStatus.OCCUPIED);
+        stationMessageSender.sendStatusNotification(evse.getId(), connector.getId(), ConnectorStatusEnum.OCCUPIED);
         stationMessageSender.sendTransactionEventStart(evse.getId(), connector.getId(), remoteStartId, REMOTE_START);
 
         Executors.newSingleThreadScheduledExecutor().schedule(() -> {
@@ -130,12 +132,12 @@ public class AvailableState extends AbstractEvseState {
     public void onRemoteStop(int evseId) {
         // NOP
     }
-
-    private List<Evse> getEvseList(AuthorizeResponse response, StationStore stationStore) {
-        return response.getEvseId().stream().map(stationStore::findEvse).collect(toList());
-    }
-
-    private boolean hasEvses(AuthorizeResponse response) {
-        return response.getEvseId() != null && !response.getEvseId().isEmpty();
-    }
+//
+//    private List<Evse> getEvseList(AuthorizeResponse response, StationStore stationStore) {
+//        return response.getEvseId().stream().map(stationStore::findEvse).collect(toList());
+//    }
+//
+//    private boolean hasEvses(AuthorizeResponse response) {
+//        return response.getEvseId() != null && !response.getEvseId().isEmpty();
+//    }
 }
