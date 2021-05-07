@@ -71,7 +71,6 @@ apply plugin: 'jsonschema2pojo'
 
 jsonSchema2Pojo {
 //    source = files("${sourceSets.main.output.resourcesDir}/schemas/v20/json")
-//    source = files("${sourceSets.main.output.resourcesDir}/schemas/v201/json")
     source = files("${sourceSets.main.output.resourcesDir}/schemas/v201")
     targetPackage = "com.evbox.everon.ocpp.v20.message"
 }

@@ -62,8 +62,8 @@ public class StationStore {
         this.stationId = configuration.getId();
         this.evses = initEvses(configuration.getEvse().getCount(), configuration.getEvse().getConnectors(), configuration.getEvse().getStatus());
         this.evConnectionTimeOut = configuration.getComponentsConfiguration().getTxCtrlr().getEvConnectionTimeOutSec();
-        this.txStartPointValues = new OptionList<>(TxStartStopPointVariableValues.fromValues(configuration.getComponentsConfiguration().getTxCtrlr().getTxStartPoints()));
-        this.txStopPointValues = new OptionList<>(TxStartStopPointVariableValues.fromValues(configuration.getComponentsConfiguration().getTxCtrlr().getTxStopPoints()));
+        this.txStartPointValues = new OptionList<>(TxStartStopPointVariableValues.fromValues(configuration.getComponentsConfiguration().getTxCtrlr().getTxStartPoint()));
+        this.txStopPointValues = new OptionList<>(TxStartStopPointVariableValues.fromValues(configuration.getComponentsConfiguration().getTxCtrlr().getTxStopPoint()));
     }
 
     public StationStore(Clock clock, int heartbeatInterval, int evConnectionTimeOut, Map<Integer, Evse> evses) {

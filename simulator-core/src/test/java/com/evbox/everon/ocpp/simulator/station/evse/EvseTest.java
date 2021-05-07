@@ -34,7 +34,7 @@ class EvseTest {
 
         long incrementValue = 1000;
         for (int i = 1; i < 20; i++) {
-            long incrementedValue = evse.incrementPowerConsumed(incrementValue);
+            long incrementedValue = evse.incrementPowerConsumedAndGetUsedPowerForCurrentCharging(incrementValue);
             assertThat(incrementedValue).isEqualTo(incrementValue * i);
             assertThat(evse.getTotalConsumedWattHours()).isEqualTo(incrementValue * i);
         }
@@ -46,11 +46,11 @@ class EvseTest {
         assertThat(startingPowerConsumed).isEqualTo(0);
 
         long incrementValue = Long.MAX_VALUE - 150;
-        assertThat(evse.incrementPowerConsumed(incrementValue)).isEqualTo(incrementValue);
-        assertThat(evse.incrementPowerConsumed(100)).isEqualTo(incrementValue + 100);
+        assertThat(evse.incrementPowerConsumedAndGetUsedPowerForCurrentCharging(incrementValue)).isEqualTo(incrementValue);
+        assertThat(evse.incrementPowerConsumedAndGetUsedPowerForCurrentCharging(100)).isEqualTo(incrementValue + 100);
 
         // The counter starts from zero and zero is counted as a value, that's why it is 49 and not 50
-        assertThat(evse.incrementPowerConsumed(100)).isEqualTo(49);
+        assertThat(evse.incrementPowerConsumedAndGetUsedPowerForCurrentCharging(100)).isEqualTo(49);
     }
 
     @Test
@@ -59,16 +59,16 @@ class EvseTest {
         assertThat(startingPowerConsumed).isEqualTo(0);
 
         long startingValue = Long.MAX_VALUE - 10;
-        assertThat(evse.incrementPowerConsumed(startingValue)).isEqualTo(startingValue);
+        assertThat(evse.incrementPowerConsumedAndGetUsedPowerForCurrentCharging(startingValue)).isEqualTo(startingValue);
 
         for (int i = 1; i <= 10; i++) {
-            assertThat(evse.incrementPowerConsumed(1)).isEqualTo(startingValue + i);
+            assertThat(evse.incrementPowerConsumedAndGetUsedPowerForCurrentCharging(1)).isEqualTo(startingValue + i);
         }
 
         assertThat(evse.getTotalConsumedWattHours()).isEqualTo(Long.MAX_VALUE);
 
         for (int i = 0; i <= 10; i++) {
-            assertThat(evse.incrementPowerConsumed(1)).isEqualTo(i);
+            assertThat(evse.incrementPowerConsumedAndGetUsedPowerForCurrentCharging(1)).isEqualTo(i);
         }
     }
 

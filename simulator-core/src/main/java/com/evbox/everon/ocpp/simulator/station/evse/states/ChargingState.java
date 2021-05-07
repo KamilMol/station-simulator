@@ -112,7 +112,7 @@ public class ChargingState extends AbstractEvseState {
 
         evse.stopCharging();
         Integer connectorId = evse.tryUnlockConnector();
-        stationMessageSender.sendTransactionEventUpdate(evseId, connectorId, REMOTE_STOP, ChargingStateEnum.EV_CONNECTED);
+        stationMessageSender.sendTransactionEventUpdate(evseId, connectorId, REMOTE_STOP, ChargingStateEnum.EV_CONNECTED, evse.getWattConsumedLastSession());
 
         stateManager.setStateForEvse(evseId, new RemotelyStoppedState());
     }
@@ -120,7 +120,7 @@ public class ChargingState extends AbstractEvseState {
     private int stopCharging(StationMessageSender stationMessageSender, Evse evse) {
         evse.stopCharging();
         Integer connectorId = evse.unlockConnector();
-        stationMessageSender.sendTransactionEventUpdate(evse.getId(), connectorId, STOP_AUTHORIZED, ChargingStateEnum.EV_CONNECTED);
+        stationMessageSender.sendTransactionEventUpdate(evse.getId(), connectorId, STOP_AUTHORIZED, ChargingStateEnum.EV_CONNECTED, evse.getWattConsumedLastSession());
         return connectorId;
     }
 

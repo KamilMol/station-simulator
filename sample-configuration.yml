@@ -8,10 +8,10 @@ stations:
         basicAuthPassword: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
       txCtrlr:
         evConnectionTimeOutSec: 120
-        txStartPoints:
+        txStartPoint:
           - EVConnected
           - Authorized
-        txStopPoints:
+        txStopPoint:
           - Authorized
   - id: EVB-P18090564
     evse:

@@ -29,7 +29,7 @@ import static java.util.Collections.singletonList;
 
 public class TxStopPointVariableAccessor extends VariableAccessor {
 
-    public static final String NAME = "TxStopPoints";
+    public static final String NAME = "TxStopPoint";
     private final Map<AttributeType, VariableGetter> variableGetters = ImmutableMap.<AttributeType, VariableGetter>builder()
             .put(AttributeType.ACTUAL, this::getActualValue)
             .build();
