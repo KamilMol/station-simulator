@@ -165,18 +165,6 @@ public class StationMessageSender {
      * @param connectorId   connector identity
      * @param reason        reason why it was triggered
      * @param chargingState charging state of the station
-     */
-    public void sendTransactionEventUpdate(Integer evseId, Integer connectorId, TriggerReasonEnum reason, ChargingStateEnum chargingState) {
-        sendTransactionEventUpdate(evseId, connectorId, reason, chargingState, null);
-    }
-
-    /**
-     * Send TransactionEventUpdate event.
-     *
-     * @param evseId        evse identity
-     * @param connectorId   connector identity
-     * @param reason        reason why it was triggered
-     * @param chargingState charging state of the station
      * @param powerConsumed power consumed by the evse
      */
     public void sendTransactionEventUpdate(Integer evseId, Integer connectorId, TriggerReasonEnum reason, ChargingStateEnum chargingState, Long powerConsumed) {

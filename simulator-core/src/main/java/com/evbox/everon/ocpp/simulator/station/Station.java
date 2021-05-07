@@ -116,8 +116,9 @@ public class Station {
         }
 
         new MeterValuesScheduler(state, stationMessageSender, meterValuesConfiguration.getSendMeterValuesIntervalSec(), meterValuesConfiguration.getConsumptionWattHour());
-        new PeriodicEventScheduler(stationMessageSender);
-        new AlertEventScheduler(stationMessageSender);
+// TODO check why it doesn't work
+//        new PeriodicEventScheduler(stationMessageSender);
+//        new AlertEventScheduler(stationMessageSender);
 
         this.stateManager = new StateManager(this, state, stationMessageSender);
     }

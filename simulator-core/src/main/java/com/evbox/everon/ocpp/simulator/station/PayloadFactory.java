@@ -191,7 +191,7 @@ public class PayloadFactory {
         SampledValue sampledValue = new SampledValue()
 //                .withSignedMeterValue(createSignedMeterValues(stationId, eventType, powerConsumed))
                 .withValue(getPowerConsumed(stationId, eventType, powerConsumed))
-                                        .withMeasurand(MeasurandEnum.ENERGY_ACTIVE_IMPORT_REGISTER);
+                .withMeasurand(MeasurandEnum.ENERGY_ACTIVE_IMPORT_REGISTER);
 
         if(STARTED.equals(eventType)) {
             sampledValue.withContext(ReadingContextEnum.TRANSACTION_BEGIN);

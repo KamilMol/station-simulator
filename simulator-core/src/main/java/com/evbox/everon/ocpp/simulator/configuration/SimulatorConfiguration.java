@@ -17,8 +17,28 @@ public class SimulatorConfiguration {
     private static final int DEFAULT_HEARTBEAT_INTERVAL = 60;
 
     private static final int DEFAULT_EV_CONNECTION_TIMEOUT = 60;
-    private static final List<String> DEFAULT_TX_START_POINTS = Arrays.asList(TxStartStopPointVariableValues.AUTHORIZED.toString(), TxStartStopPointVariableValues.EV_CONNECTED.toString());
-    private static final List<String> DEFAULT_TX_STOP_POINTS = Arrays.asList(TxStartStopPointVariableValues.AUTHORIZED.toString(), TxStartStopPointVariableValues.EV_CONNECTED.toString());
+    private static final List<String> DEFAULT_TX_START_POINTS =
+            Arrays.asList(
+                    TxStartStopPointVariableValues.AUTHORIZED.toString(),
+                    TxStartStopPointVariableValues.EV_CONNECTED.toString()
+            );
+    private static final List<String> DEFAULT_TX_START_POINTS_OCPP_1_6 =
+            Arrays.asList(
+                    TxStartStopPointVariableValues.POWER_PATH_CLOSED.toString(),
+                    TxStartStopPointVariableValues.ENERGY_TRANSFER.toString()
+            );
+    private static final List<String> DEFAULT_TX_STOP_POINTS =
+            Arrays.asList(
+                    TxStartStopPointVariableValues.AUTHORIZED.toString(),
+                    TxStartStopPointVariableValues.EV_CONNECTED.toString()
+            );
+    private static final List<String> DEFAULT_TX_STOP_POINTS_OCCP_1_6 =
+            Arrays.asList(
+                    TxStartStopPointVariableValues.AUTHORIZED.toString(),
+                    TxStartStopPointVariableValues.EV_CONNECTED.toString(),
+                    TxStartStopPointVariableValues.DATA_SIGNED.toString(),
+                    TxStartStopPointVariableValues.POWER_PATH_CLOSED.toString()
+            );
 
     private static final long DEFAULT_SEND_METER_VALUES_INTERVAL_SEC = 10;
     private static final long DEFAULT_CONSUMPTION_WATT_HOUR = 22_000;
@@ -125,13 +145,13 @@ public class SimulatorConfiguration {
          * List of events that defines when a new transaction should start.
          */
         @Builder.Default
-        private List<String> txStartPoints = DEFAULT_TX_START_POINTS;
+        private List<String> txStartPoint = DEFAULT_TX_START_POINTS;
 
         /**
          * List of events that when no longer valid, the transaction should be ended.
          */
         @Builder.Default
-        private List<String> txStopPoints = DEFAULT_TX_STOP_POINTS;
+        private List<String> txStopPoint = DEFAULT_TX_STOP_POINTS;
     }
 
     @Data

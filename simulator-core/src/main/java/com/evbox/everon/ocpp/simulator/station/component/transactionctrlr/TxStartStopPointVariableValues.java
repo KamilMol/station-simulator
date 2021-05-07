@@ -9,6 +9,7 @@ import java.util.Map;
 
 public enum TxStartStopPointVariableValues {
 
+    PARKING_BAY_OCCUPANCY("ParkingBayOccupancy"),
     EV_CONNECTED("EVConnected"),
     AUTHORIZED("Authorized"),
     DATA_SIGNED("DataSigned"),

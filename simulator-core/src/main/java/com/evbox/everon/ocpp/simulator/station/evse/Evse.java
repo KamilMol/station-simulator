@@ -52,13 +52,13 @@ public class Evse {
     private EvseStatus scheduledNewEvseStatus;
 
     /**
-     *  Total power consumed by the evse in watt hour
+     * Total power consumed by the evse in watt hour
      */
     private long totalConsumedWattHours;
 
 
     /**
-     *  Current state of the evse
+     * Current state of the evse
      */
     private AbstractEvseState evseState;
 
@@ -155,6 +155,7 @@ public class Evse {
 
     /**
      * Getter for the current evse state.
+     *
      * @return evseState
      */
     public AbstractEvseState getEvseState() {
@@ -163,6 +164,7 @@ public class Evse {
 
     /**
      * Sets the current state of the evse.
+     *
      * @param evseState new state fro the evse
      */
     public void setEvseState(AbstractEvseState evseState) {
@@ -291,7 +293,6 @@ public class Evse {
      * Find any LOCKED connector and switch to PLUGGED status.
      *
      * @return identity of the connector.
-     *
      */
     public Integer unlockConnector() {
 
@@ -344,6 +345,7 @@ public class Evse {
                 .filter(connector -> ConnectorStatusEnum.AVAILABLE.equals(connector.getConnectorStatus()))
                 .findAny();
     }
+
     /**
      * Find an instance of a plugged {@link Connector}.
      *
@@ -368,6 +370,11 @@ public class Evse {
                 .orElseThrow(() -> new IllegalArgumentException(String.format("No connector with ID: %s", connectorId)));
     }
 
+    public long incrementPowerConsumedAndGetUsedPowerForCurrentCharging(long incrementValue) {
+        incrementPowerConsumed(incrementValue);
+        return getWattConsumedLastSession();
+    }
+
     /**
      * Increases the power consumed by the value specified.
      * If the new value exceeds MAX_VALUE then it will restart from 0.
@@ -375,14 +382,13 @@ public class Evse {
      * @param incrementValue amount of power to add to the consumed power
      * @return updated value of consumed power
      */
-    public long incrementPowerConsumed(long incrementValue) {
+    private void incrementPowerConsumed(long incrementValue) {
         long diff = Long.MAX_VALUE - totalConsumedWattHours;
         if (incrementValue > diff) {
             totalConsumedWattHours = incrementValue - diff - 1;
         } else {
             totalConsumedWattHours += incrementValue;
         }
-        return totalConsumedWattHours;
     }
 
     @Override
@@ -396,6 +402,7 @@ public class Evse {
                 ", transaction=" + transaction +
                 ", evseStatus=" + evseStatus +
                 ", totalConsumedWattHours=" + totalConsumedWattHours +
+                ", stateName=" + evseState +
                 '}';
     }
 
@@ -413,6 +420,7 @@ public class Evse {
                 .transaction(transaction.createView())
                 .scheduledNewEvseStatus(scheduledNewEvseStatus)
                 .totalConsumedWattHours(totalConsumedWattHours)
+                .evseState(evseState.getStateName())
                 .build();
     }
 
@@ -437,6 +445,7 @@ public class Evse {
         private final EvseTransactionView transaction;
         private final EvseStatus scheduledNewEvseStatus;
         private final long totalConsumedWattHours;
+        private final String evseState;
 
         /**
          * Checks whether EVSE has a token or not.

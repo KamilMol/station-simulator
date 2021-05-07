@@ -1,5 +1,7 @@
 package com.evbox.everon.ocpp.simulator.station.support;
 
+import java.util.UUID;
+
 /**
  * Singleton that generates transaction_id. Used in the handler-classes.
  */
@@ -28,9 +30,7 @@ public final class TransactionIdGenerator {
      * @return current transaction id value
      */
     public String getAndIncrement() {
-        Integer value = transactionId.get();
-        transactionId.set(value + 1);
-        return String.format("T_%08d", value);
+        return UUID.randomUUID().toString();
     }
 
     private static final class TransactionIdGeneratorHolder {
