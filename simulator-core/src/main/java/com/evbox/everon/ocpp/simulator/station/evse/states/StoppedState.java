@@ -87,7 +87,7 @@ public class StoppedState extends AbstractEvseState {
             if (response.getIdTokenInfo().getStatus() == AuthorizationStatusEnum.ACCEPTED) {
                 evse.setToken(tokenId);
                 if (!evse.hasOngoingTransaction()) {
-                    String transactionId = TransactionIdGenerator.getInstance().getAndIncrement();
+                    String transactionId = TransactionIdGenerator.getInstance().generateTransactionId();
                     evse.createTransaction(transactionId);
 
                     stationMessageSender.sendTransactionEventStart(evseId, AUTHORIZED, tokenId);

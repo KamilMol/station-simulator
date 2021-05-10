@@ -60,7 +60,7 @@ public class WaitingForAuthorizationState extends AbstractEvseState {
             evse.setToken(tokenId);
 
             if (!evse.hasOngoingTransaction()) {
-                String transactionId = TransactionIdGenerator.getInstance().getAndIncrement();
+                String transactionId = TransactionIdGenerator.getInstance().generateTransactionId();
                 evse.createTransaction(transactionId);
 
                 stationMessageSender.sendTransactionEventStart(evseId, AUTHORIZED, tokenId);

@@ -7,11 +7,6 @@ import java.util.UUID;
  */
 public final class TransactionIdGenerator {
 
-    /**
-     * Transaction id thread-local
-     */
-    private final ThreadLocal<Integer> transactionId = ThreadLocal.withInitial(() -> 1);
-
     private TransactionIdGenerator() {
     }
 
@@ -29,7 +24,7 @@ public final class TransactionIdGenerator {
      *
      * @return current transaction id value
      */
-    public String getAndIncrement() {
+    public String generateTransactionId() {
         return UUID.randomUUID().toString();
     }
 

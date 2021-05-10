@@ -55,7 +55,7 @@ public class AvailableState extends AbstractEvseState {
         stationMessageSender.sendStatusNotificationAndSubscribe(evse, evse.findConnector(connectorId), (statusNotificationRequest, statusNotificationResponse) -> {
             OptionList<TxStartStopPointVariableValues> startPoints = stateManager.getStationStore().getTxStartPointValues();
             if (startPoints.contains(TxStartStopPointVariableValues.EV_CONNECTED) && !startPoints.contains(TxStartStopPointVariableValues.POWER_PATH_CLOSED)) {
-                String transactionId = TransactionIdGenerator.getInstance().getAndIncrement();
+                String transactionId = TransactionIdGenerator.getInstance().generateTransactionId();
                 evse.createTransaction(transactionId);
 
                 stationMessageSender.sendTransactionEventStart(evseId, connectorId, TriggerReasonEnum.CABLE_PLUGGED_IN, ChargingStateEnum.EV_CONNECTED);
@@ -84,7 +84,7 @@ public class AvailableState extends AbstractEvseState {
 
                 OptionList<TxStartStopPointVariableValues> startPoints = stationStore.getTxStartPointValues();
                 if (startPoints.contains(TxStartStopPointVariableValues.AUTHORIZED) && !startPoints.contains(TxStartStopPointVariableValues.POWER_PATH_CLOSED)) {
-                    String transactionId = TransactionIdGenerator.getInstance().getAndIncrement();
+                    String transactionId = TransactionIdGenerator.getInstance().generateTransactionId();
                     authorizedEvses.forEach(evse -> evse.createTransaction(transactionId));
 
                     authorizedEvses.forEach(evse -> stationMessageSender.sendTransactionEventStart(evse.getId(), TriggerReasonEnum.AUTHORIZED, tokenId));
@@ -112,7 +112,7 @@ public class AvailableState extends AbstractEvseState {
 
         Evse evse = stationStore.findEvse(evseId);
 
-        String transactionId = TransactionIdGenerator.getInstance().getAndIncrement();
+        String transactionId = TransactionIdGenerator.getInstance().generateTransactionId();
         evse.createTransaction(transactionId);
 
         evse.setToken(tokenId);

@@ -26,7 +26,7 @@ public class StartTransactionCablePluginFirstIt extends StationSimulatorSetUp {
                 .thenReturn(TransactionEvent.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(STARTED, DEFAULT_SEQ_NUMBER, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID))
+                .when(TransactionEvent.request(STARTED, DEFAULT_SEQ_NUMBER, DEFAULT_EVSE_ID))
                 .thenReturn(TransactionEvent.response());
 
         stationSimulatorRunner.run();

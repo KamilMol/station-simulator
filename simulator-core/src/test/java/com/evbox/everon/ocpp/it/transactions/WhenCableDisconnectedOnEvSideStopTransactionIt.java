@@ -37,19 +37,19 @@ public class WhenCableDisconnectedOnEvSideStopTransactionIt extends StationSimul
                 .thenReturn(StatusNotification.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(STARTED, seqNo, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID))
+                .when(TransactionEvent.request(STARTED, seqNo, DEFAULT_EVSE_ID))
                 .thenReturn(TransactionEvent.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(UPDATED, seqNo + 1, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID))
+                .when(TransactionEvent.request(UPDATED, seqNo + 1, DEFAULT_EVSE_ID))
                 .thenReturn(TransactionEvent.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(UPDATED, seqNo + 2, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID))
+                .when(TransactionEvent.request(UPDATED, seqNo + 2, DEFAULT_EVSE_ID))
                 .thenReturn(TransactionEvent.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(ENDED, seqNo + 3, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID))
+                .when(TransactionEvent.request(ENDED, seqNo + 3, DEFAULT_EVSE_ID))
                 .thenReturn(TransactionEvent.response());
 
         stationSimulatorRunner.run();
@@ -86,11 +86,11 @@ public class WhenCableDisconnectedOnEvSideStopTransactionIt extends StationSimul
                 .thenReturn(StatusNotification.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(STARTED, seqNo, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID))
+                .when(TransactionEvent.request(STARTED, seqNo, DEFAULT_EVSE_ID))
                 .thenReturn(TransactionEvent.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(ENDED, seqNo + 3, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID))
+                .when(TransactionEvent.request(ENDED, seqNo + 3, DEFAULT_EVSE_ID))
                 .thenReturn(TransactionEvent.response());
 
         stationSimulatorRunner.run();
