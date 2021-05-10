@@ -41,7 +41,7 @@ public class RemoteStopTransactionIt extends StationSimulatorSetUp {
                 .thenReturn(Authorize.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(TransactionEventEnum.UPDATED, ChargingStateEnum.EV_CONNECTED, DEFAULT_TRANSACTION_ID, TriggerReasonEnum.REMOTE_STOP))
+                .when(TransactionEvent.request(TransactionEventEnum.UPDATED, ChargingStateEnum.EV_CONNECTED, TriggerReasonEnum.REMOTE_STOP))
                 .thenReturn(TransactionEvent.response());
 
         ocppMockServer
@@ -59,8 +59,9 @@ public class RemoteStopTransactionIt extends StationSimulatorSetUp {
         triggerUserAction(STATION_ID, new com.evbox.everon.ocpp.simulator.station.actions.user.Authorize(DEFAULT_TOKEN_ID, DEFAULT_EVSE_ID));
 
         await().untilAsserted(() -> assertThat(stationSimulatorRunner.getStation(STATION_ID).getStateView().isCharging(DEFAULT_EVSE_ID)).isTrue());
+        String transactionId = stationSimulatorRunner.getStation(STATION_ID).getStateView().getDefaultEvse().getTransaction().getTransactionId();
 
-        Call call = new Call(DEFAULT_CALL_ID, ActionType.REQUEST_STOP_TRANSACTION, new RequestStopTransactionRequest().withTransactionId(new CiString.CiString36(DEFAULT_TRANSACTION_ID)));
+        Call call = new Call(DEFAULT_CALL_ID, ActionType.REQUEST_STOP_TRANSACTION, new RequestStopTransactionRequest().withTransactionId(new CiString.CiString36(transactionId)));
         ocppServerClient.findStationSender(STATION_ID).sendMessage(call.toJson());
 
         await().untilAsserted(() -> assertThat(stationSimulatorRunner.getStation(STATION_ID).getStateView().isCharging(DEFAULT_EVSE_ID)).isFalse());

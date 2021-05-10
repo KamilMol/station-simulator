@@ -53,15 +53,14 @@ public class TransactionEvent {
      *
      * @param type          transaction type
      * @param chargingState charging state
-     * @param transactionId id of the transaction
      * @param triggerReason trigger reason
      * @return checks whether an incoming request is TransactionEvent or not.
      */
-    public static Predicate<Call> request(TransactionEventEnum type, ChargingStateEnum chargingState, String transactionId, TriggerReasonEnum triggerReason) {
+    public static Predicate<Call> request(TransactionEventEnum type, ChargingStateEnum chargingState, TriggerReasonEnum triggerReason) {
         return request -> equalsType(request, TRANSACTION_EVENT) &&
                 equalsEventType(request, type) &&
                 equalsChargingState(request, chargingState) &&
-                equalsTransactionId(request, transactionId) &&
+                notNullTransactionId(request) &&
                 equalsTriggerReason(request, triggerReason);
     }
 
@@ -70,15 +69,14 @@ public class TransactionEvent {
      *
      * @param type          transaction type
      * @param seqNo         sequence number
-     * @param transactionId id of the transaction
      * @param evseId        evse id
      * @return checks whether an incoming request is TransactionEvent or not.
      */
-    public static Predicate<Call> request(TransactionEventEnum type, int seqNo, String transactionId, int evseId) {
+    public static Predicate<Call> request(TransactionEventEnum type, int seqNo, int evseId) {
         return request -> equalsType(request, TRANSACTION_EVENT) &&
                 equalsEventType(request, type) &&
                 equalsSeqNo(request, seqNo) &&
-                equalsTransactionId(request, transactionId) &&
+                notNullTransactionId(request) &&
                 equalsEvseId(request, evseId);
     }
 
@@ -99,6 +97,35 @@ public class TransactionEvent {
                 equalsTransactionId(request, transactionId) &&
                 equalsEvseId(request, evseId) &&
                 equalsTokenId(request, tokenId);
+    }
+
+    /**
+     * Transaction event with given configuration.
+     *
+     * @param type          transaction type
+     * @param seqNo         sequence number
+     * @param evseId        evse id
+     * @param tokenId       id of the auth token
+     * @param chargingState charging satte
+     * @param triggerReason trigger reason for the event
+     * @return checks whether an incoming request is TransactionEvent or not.
+     */
+    public static Predicate<Call> request(
+            TransactionEventEnum type,
+            int seqNo,
+            int evseId,
+            String tokenId,
+            ChargingStateEnum chargingState,
+            TriggerReasonEnum triggerReason) {
+
+        return request -> equalsType(request, TRANSACTION_EVENT) &&
+                equalsEventType(request, type) &&
+                equalsSeqNo(request, seqNo) &&
+                notNullTransactionId(request) &&
+                equalsEvseId(request, evseId) &&
+                equalsTokenId(request, tokenId) &&
+                equalsChargingState(request, chargingState) &&
+                equalsTriggerReason(request, triggerReason);
     }
 
     /**
@@ -151,6 +178,10 @@ public class TransactionEvent {
 
     private static boolean equalsTransactionId(Call request, String transactionId) {
         return ((TransactionEventRequest) request.getPayload()).getTransactionInfo().getTransactionId().toString().equals(transactionId);
+    }
+
+    private static boolean notNullTransactionId(Call request) {
+        return ((TransactionEventRequest) request.getPayload()).getTransactionInfo().getTransactionId() != null;
     }
 
     private static boolean equalsEvseId(Call request, int evseId) {

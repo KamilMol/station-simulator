@@ -49,7 +49,7 @@ public class WaitingForPlugState extends AbstractEvseState {
             log.info("Station has authorised token {}", tokenId);
 
             if (!evse.hasOngoingTransaction()) {
-                String transactionId = TransactionIdGenerator.getInstance().getAndIncrement();
+                String transactionId = TransactionIdGenerator.getInstance().generateTransactionId();
                 evse.createTransaction(transactionId);
 
                 stationMessageSender.sendTransactionEventStart(evseId, connectorId, CABLE_PLUGGED_IN, ChargingStateEnum.EV_CONNECTED);

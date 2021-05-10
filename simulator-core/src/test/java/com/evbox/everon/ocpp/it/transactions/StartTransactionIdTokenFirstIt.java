@@ -38,15 +38,15 @@ public class StartTransactionIdTokenFirstIt extends StationSimulatorSetUp {
                 .thenReturn(StatusNotification.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(STARTED, seqNo, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID))
+                .when(TransactionEvent.request(STARTED, seqNo, DEFAULT_EVSE_ID))
                 .thenReturn(TransactionEvent.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(UPDATED, seqNo + 1, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID, DEFAULT_TOKEN_ID, EV_CONNECTED, CABLE_PLUGGED_IN))
+                .when(TransactionEvent.request(UPDATED, seqNo + 1, DEFAULT_EVSE_ID, DEFAULT_TOKEN_ID, EV_CONNECTED, CABLE_PLUGGED_IN))
                 .thenReturn(TransactionEvent.response());
 
         ocppMockServer
-                .when(TransactionEvent.request(UPDATED, seqNo + 2, DEFAULT_TRANSACTION_ID, DEFAULT_EVSE_ID, DEFAULT_TOKEN_ID, CHARGING, CHARGING_STATE_CHANGED))
+                .when(TransactionEvent.request(UPDATED, seqNo + 2, DEFAULT_EVSE_ID, DEFAULT_TOKEN_ID, CHARGING, CHARGING_STATE_CHANGED))
                 .thenReturn(TransactionEvent.response());
 
         stationSimulatorRunner.run();
