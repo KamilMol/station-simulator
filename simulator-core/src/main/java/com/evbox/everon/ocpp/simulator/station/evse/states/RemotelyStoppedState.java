@@ -25,7 +25,7 @@ public class RemotelyStoppedState extends StoppedState {
         Evse evse = stationStore.findEvse(evseId);
 
         evse.unplug(connectorId);
-        evse.stopTransaction();
+//        evse.stopTransaction();
         evse.clearToken();
 
 //        stationMessageSender.sendStatusNotification(evse, evse.findConnector(connectorId));
@@ -34,13 +34,15 @@ public class RemotelyStoppedState extends StoppedState {
 //                                                        ReasonEnum.REMOTE,
 //                                                        evse.getWattConsumedLastSession());
 
-        stationMessageSender.sendTransactionEventEndedAndSubscribe(evseId, connectorId,
-                TriggerReasonEnum.EV_DEPARTED,
-                ReasonEnum.REMOTE,
-                evse.getWattConsumedLastSession(),
-                (request, response) -> {
-                    stationMessageSender.sendStatusNotification(evse, evse.findConnector(connectorId));
-                });
+//        stationMessageSender.sendTransactionEventEndedAndSubscribe(evseId, connectorId,
+//                TriggerReasonEnum.EV_DEPARTED,
+//                ReasonEnum.REMOTE,
+//                evse.getWattConsumedLastSession(),
+//                (request, response) -> {
+//                    stationMessageSender.sendStatusNotification(evse, evse.findConnector(connectorId));
+//                });
+
+        stationMessageSender.sendStatusNotification(evse, evse.findConnector(connectorId));
 
 
         stateManager.setStateForEvse(evseId, new AvailableState());

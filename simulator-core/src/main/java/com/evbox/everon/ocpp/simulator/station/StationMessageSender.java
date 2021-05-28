@@ -201,6 +201,17 @@ public class StationMessageSender {
         sendPayloadOfType(ActionType.TRANSACTION_EVENT, payload);
     }
 
+    public void sendTransactionEventUpdateAndSubscribe(Integer evseId, Integer connectorId, TriggerReasonEnum reason, ChargingStateEnum chargingState,
+                                                       Long powerConsumed, Subscriber<TransactionEventRequest, TransactionEventResponse> subscriber) {
+        TransactionEventRequest payload = payloadFactory.createTransactionEventUpdate(stationStore.getStationId(), stationStore.findEvse(evseId),
+                connectorId, reason, null, chargingState, stationStore.getCurrentTime(), Optional.ofNullable(powerConsumed).orElse(0L));
+
+        Call call = createAndRegisterCall(ActionType.TRANSACTION_EVENT, payload);
+        callRegistry.addSubscription(call.getMessageId(), payload, subscriber);
+
+        sendMessage(OcppMessage.builder().data(call.toJson()).build());
+    }
+
     /**
      * Send TransactionEventEnded event and subscribe on response.
      *

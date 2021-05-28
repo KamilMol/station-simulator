@@ -12,6 +12,7 @@ import com.evbox.everon.ocpp.v20.message.AuthorizationStatusEnum;
 import com.evbox.everon.ocpp.v20.message.AuthorizeResponse;
 import com.evbox.everon.ocpp.v20.message.ChargingStateEnum;
 import com.evbox.everon.ocpp.v20.message.ReasonEnum;
+import com.evbox.everon.ocpp.v20.message.TriggerReasonEnum;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CompletableFuture;
@@ -21,12 +22,12 @@ import static com.evbox.everon.ocpp.v20.message.TriggerReasonEnum.STOP_AUTHORIZE
 import static java.util.Collections.singletonList;
 
 /**
- *  When the transaction is ongoing and the evse is charging.
+ * When the transaction is ongoing and the evse is charging.
  */
 @Slf4j
 public class ChargingState extends AbstractEvseState {
 
-    public static final String NAME =  "CHARGING";
+    public static final String NAME = "CHARGING";
 
     @Override
     public String getStateName() {
@@ -79,7 +80,7 @@ public class ChargingState extends AbstractEvseState {
             }
             stateManager.setStateForEvse(evseId, new StoppedState());
             future.complete(UserMessageResult.SUCCESSFUL);
-        } else  {
+        } else {
             AuthorizeHelper.handleFailedAuthorizeResponse(stateManager, evse);
 
             if (evse.hasOngoingTransaction()) {
@@ -112,7 +113,27 @@ public class ChargingState extends AbstractEvseState {
 
         evse.stopCharging();
         Integer connectorId = evse.tryUnlockConnector();
-        stationMessageSender.sendTransactionEventUpdate(evseId, connectorId, REMOTE_STOP, ChargingStateEnum.EV_CONNECTED, evse.getWattConsumedLastSession());
+//        stationMessageSender.sendTransactionEventUpdate(evseId,
+//                connectorId,
+//                REMOTE_STOP,
+//                ChargingStateEnum.EV_CONNECTED,
+//                evse.getWattConsumedLastSession());
+
+        stationMessageSender.sendTransactionEventUpdateAndSubscribe(
+                evseId,
+                connectorId,
+                REMOTE_STOP,
+                ChargingStateEnum.EV_CONNECTED,
+                evse.getWattConsumedLastSession(),
+                (request, response) -> {
+                    evse.stopTransaction();
+
+                    stationMessageSender.sendTransactionEventEnded(evseId, connectorId,
+                            TriggerReasonEnum.EV_DEPARTED,
+                            ReasonEnum.REMOTE,
+                            evse.getWattConsumedLastSession());
+                });
+
 
         stateManager.setStateForEvse(evseId, new RemotelyStoppedState());
     }
